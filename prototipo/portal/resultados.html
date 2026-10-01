@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resultados — Preicfés Bertel</title>
+<link rel="icon" href="../assets/logo-bertel.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+<!-- Sin js/escena.js -->
+</head>
+<body>
+
+<a class="saltar" href="#principal">Saltar al contenido</a>
+
+<div class="aviso-demo" role="note">
+  <strong>Prototipo visual.</strong> Sin cifras reales: la fórmula de calificación
+  la define el PRD y se implementa en el servidor (Fase 6).
+</div>
+
+<div class="portal">
+
+  <nav class="lateral" aria-label="Portal">
+    <a class="marca" href="../index.html">
+      <img src="../assets/logo-bertel.png" alt="">
+      <span class="marca__texto">Preicfés Bertel<span>Portal</span></span>
+    </a>
+    <ul class="menu-lateral">
+      <li><a href="panel.html">Inicio</a></li>
+      <li><a href="simulacro.html">Mis pruebas</a></li>
+      <li><a href="resultados.html" aria-current="page">Resultados</a></li>
+      <li><a href="administracion.html">Administración</a></li>
+    </ul>
+    <p class="lateral__pie">Prototipo — Fase de diseño</p>
+  </nav>
+
+  <div class="principal">
+    <header class="barra-sup">
+      <h1>Simulacro Saber 11 — N.º 2</h1>
+      <span class="pastilla">Finalizado</span>
+      <span class="avatar" aria-hidden="true">ES</span>
+    </header>
+
+    <main class="contenido" id="principal">
+
+      <section class="resultado-cabeza">
+        <div class="aro-grande" style="--v:0" role="img" aria-label="Puntuación pendiente de cálculo">
+          <div>
+            <strong>—</strong>
+            <span>Puntuación</span>
+          </div>
+        </div>
+        <div>
+          <h2 style="font-size:var(--t-h3);margin-bottom:var(--e2)">Tu resultado</h2>
+          <p style="color:var(--texto-suave);font-size:var(--t-pequeno);max-width:52ch">
+            El desglose muestra aciertos, errores y omisiones de forma que puedan
+            explicarse y verificarse frente a las respuestas guardadas.
+          </p>
+          <div class="desglose">
+            <span class="pastilla pastilla--exito">Aciertos —</span>
+            <span class="pastilla pastilla--error">Errores —</span>
+            <span class="pastilla">Omitidas —</span>
+          </div>
+        </div>
+      </section>
+
+      <div class="alerta alerta--info">
+        <span aria-hidden="true">ℹ</span>
+        <span>
+          No se muestra ninguna escala 0–500 ni se presenta el resultado como puntaje
+          ICFES oficial. Cualquier escala interna requiere definición y metodología autorizadas.
+        </span>
+      </div>
+
+      <div class="titulo-bloque" style="margin-top:var(--e7)">
+        <h2>Por componente</h2>
+      </div>
+
+      <div class="grafico" style="margin-top:0">
+        <div class="grafico__barras">
+          <div class="grafico__fila">
+            <span>Lectura crítica</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+          <div class="grafico__fila">
+            <span>Matemáticas</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+          <div class="grafico__fila">
+            <span>Sociales y ciudadanas</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+          <div class="grafico__fila">
+            <span>Ciencias naturales</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+          <div class="grafico__fila">
+            <span>Inglés</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+        </div>
+        <p class="grafico__pie">
+          La anchura de cada barra corresponde al valor exacto calculado por el servidor.
+        </p>
+      </div>
+
+      <div class="titulo-bloque" style="margin-top:var(--e8)">
+        <h2>Revisión pregunta a pregunta</h2>
+        <span class="pastilla">Se libera según la política del producto</span>
+      </div>
+
+      <div class="tabla-envoltura">
+        <table class="tabla-resultado">
+          <caption class="sr">Detalle de respuestas del intento</caption>
+          <thead>
+            <tr>
+              <th scope="col">N.º</th>
+              <th scope="col">Componente</th>
+              <th scope="col">Tu respuesta</th>
+              <th scope="col">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td><td>Lectura crítica</td><td>B</td>
+              <td><span class="pastilla pastilla--exito">✓ Correcta</span></td>
+            </tr>
+            <tr>
+              <td>2</td><td>Lectura crítica</td><td>D</td>
+              <td><span class="pastilla pastilla--error">✕ Incorrecta</span></td>
+            </tr>
+            <tr>
+              <td>3</td><td>Matemáticas</td><td>—</td>
+              <td><span class="pastilla">○ Omitida</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="ayuda" style="margin-top:var(--e4)">
+        La clave de respuesta correcta sólo se entrega al cliente en el momento de revisión
+        autorizado. Antes de esa fecha no viaja en la respuesta del servidor.
+      </p>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

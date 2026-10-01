@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ingresar — Preicfés Bertel</title>
+<link rel="icon" href="../assets/logo-bertel.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+<!-- Sin js/escena.js: esta ruta no necesita el motor visual del sitio público. -->
+</head>
+<body>
+
+<div class="aviso-demo" role="note">
+  <strong>Prototipo visual.</strong> El formulario no autentica: la autenticación
+  se implementará en la Fase 2, con el mecanismo que defina la arquitectura aprobada.
+</div>
+
+<div class="acceso">
+
+  <main class="acceso__forma">
+    <div class="acceso__caja">
+      <a class="marca" href="../index.html" style="margin-bottom:var(--e7)">
+        <img src="../assets/logo-bertel.png" alt="">
+        <span class="marca__texto">Preicfés Bertel<span>Portal académico</span></span>
+      </a>
+
+      <h1>Ingresa a tu portal</h1>
+      <p>Consulta tus pruebas disponibles y revisa tus resultados.</p>
+
+      <form novalidate>
+        <div class="campo">
+          <label for="usuario">Usuario</label>
+          <input class="entrada" id="usuario" name="usuario" type="text"
+                 autocomplete="username" required aria-describedby="ayuda-usuario">
+          <span class="ayuda" id="ayuda-usuario">
+            El identificador de acceso está pendiente de definir en el PRD
+            (correo, documento o usuario asignado).
+          </span>
+        </div>
+
+        <div class="campo">
+          <label for="clave">Contraseña</label>
+          <input class="entrada" id="clave" name="clave" type="password"
+                 autocomplete="current-password" required>
+        </div>
+
+        <div class="fila-forma">
+          <label class="check">
+            <input type="checkbox" name="recordar"> Mantener la sesión
+          </label>
+          <a href="#" style="font-size:var(--t-pequeno)">¿Olvidaste tu contraseña?</a>
+        </div>
+
+        <button class="btn" type="submit" style="width:100%">Ingresar</button>
+
+        <p class="ayuda" style="margin-top:var(--e5);text-align:center">
+          ¿Problemas para entrar? Contacta a tu coordinador académico.
+        </p>
+      </form>
+
+      <p style="margin-top:var(--e7);font-size:var(--t-pequeno)">
+        <a class="enlace-flecha" href="panel.html">Ver el panel de demostración </a>
+      </p>
+    </div>
+  </main>
+
+  <!-- Detalle de profundidad secundario: un solo panel, sin movimiento -->
+  <aside class="acceso__aparte" aria-hidden="true">
+    <article class="panel">
+      <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Mi progreso</span></div>
+      <div class="panel__cuerpo">
+        <div class="progreso__fila">
+          <span class="progreso__cifra">—</span>
+          <span class="pastilla">Demostración</span>
+        </div>
+        <div class="barra"><div class="barra__valor" style="width:62%"></div></div>
+        <ul class="lista-materias">
+          <li><div><span>Lectura crítica</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:74%"></div></div></li>
+          <li><div><span>Matemáticas</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:58%"></div></div></li>
+          <li><div><span>Sociales</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:66%"></div></div></li>
+        </ul>
+      </div>
+    </article>
+    <p class="acceso__lema">Prepárate, practica y comprende tus resultados.</p>
+  </aside>
+
+</div>
+
+</body>
+</html>

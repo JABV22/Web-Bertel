@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulacro Saber 11 — Preicfés Bertel</title>
+<link rel="icon" href="../assets/logo-bertel.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+<!-- ============================================================
+     SIN js/escena.js.
+     Entorno estable: sin parallax, sin escenas sticky y sin
+     objetos 3D junto a las preguntas. Ninguna animación desplaza
+     respuestas ni reinicia componentes.
+     ============================================================ -->
+</head>
+<body style="background:var(--base-calida)">
+
+<a class="saltar" href="#pregunta">Saltar a la pregunta</a>
+
+<div class="aviso-demo" role="note">
+  <strong>Prototipo visual.</strong> No hay temporizador real, autoguardado ni calificación:
+  el servidor decide tiempos, propiedad del intento y nota (Fases 5 y 6).
+</div>
+
+<!-- Barra del examen: información esencial, sin elementos que tapen contenido -->
+<header class="examen__barra">
+  <span class="examen__titulo">Simulacro Saber 11 — N.º 3</span>
+
+  <!-- Estado de autoguardado: texto + icono, no sólo color -->
+  <span class="guardado guardado--ok" role="status">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M3 8.5 6.2 11.5 13 4.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Respuestas guardadas
+  </span>
+
+  <span class="reloj">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <circle cx="8" cy="8" r="6.2" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M8 4.6V8l2.4 1.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+    </svg>
+    <span class="sr">Tiempo restante: </span>28:14
+  </span>
+</header>
+
+<main class="contenido">
+
+  <div class="alerta alerta--aviso">
+    <span aria-hidden="true">⚠</span>
+    <span>
+      Referencia de los estados de autoguardado que debe implementar la Fase 5:
+      <strong>pendiente</strong>, <strong>guardando</strong>, <strong>guardado</strong> y
+      <strong>error</strong>, cada uno distinguible sin depender del color.
+    </span>
+  </div>
+
+  <div style="display:flex;gap:var(--e5);flex-wrap:wrap;margin-bottom:var(--e6)">
+    <span class="guardado guardado--pendiente">○ Cambios sin guardar</span>
+    <span class="guardado guardado--guardando">◍ Guardando…</span>
+    <span class="guardado guardado--ok">✓ Respuestas guardadas</span>
+    <span class="guardado guardado--error">✕ No se pudo guardar — reintentando</span>
+  </div>
+
+  <div class="examen">
+
+    <section class="pregunta-larga" id="pregunta" aria-labelledby="num-pregunta">
+      <p class="pregunta-larga__num" id="num-pregunta">Pregunta 12 de 50 · Lectura crítica</p>
+
+      <p class="pregunta-larga__texto">
+        El autor sostiene que la lectura crítica no consiste únicamente en comprender lo que
+        un texto dice, sino en reconocer desde dónde lo dice. En el tercer párrafo introduce
+        el caso de un editorial de prensa para mostrar cómo una misma noticia admite lecturas
+        distintas según el énfasis que reciba cada dato.
+      </p>
+
+      <p class="pregunta-larga__texto" style="font-weight:var(--peso-semi)">
+        Según el texto, ¿cuál es la intención principal del autor en el tercer párrafo?
+      </p>
+
+      <ul class="opciones-examen">
+        <li>
+          <label class="opcion-examen">
+            <input type="radio" name="p12" value="A">
+            <span>Cuestionar la postura que había defendido en el párrafo anterior.</span>
+          </label>
+        </li>
+        <li>
+          <label class="opcion-examen">
+            <input type="radio" name="p12" value="B" checked>
+            <span>Ampliar su argumento mediante un ejemplo concreto.</span>
+          </label>
+        </li>
+        <li>
+          <label class="opcion-examen">
+            <input type="radio" name="p12" value="C">
+            <span>Introducir una definición técnica del concepto de lectura crítica.</span>
+          </label>
+        </li>
+        <li>
+          <label class="opcion-examen">
+            <input type="radio" name="p12" value="D">
+            <span>Resumir la idea central desarrollada a lo largo del texto.</span>
+          </label>
+        </li>
+      </ul>
+
+      <div class="pie-examen">
+        <button class="btn btn--linea" type="button">← Anterior</button>
+        <button class="btn btn--linea" type="button">Marcar para revisar</button>
+        <button class="btn" type="button">Siguiente →</button>
+      </div>
+    </section>
+
+    <aside class="tarjeta navegador" aria-label="Navegación por preguntas">
+      <h3>Preguntas</h3>
+      <div class="rejilla-num">
+        <a class="num num--hecha" href="#pregunta">1</a>
+        <a class="num num--hecha" href="#pregunta">2</a>
+        <a class="num num--hecha" href="#pregunta">3</a>
+        <a class="num num--hecha" href="#pregunta">4</a>
+        <a class="num num--hecha" href="#pregunta">5</a>
+        <a class="num num--hecha" href="#pregunta">6</a>
+        <a class="num num--hecha" href="#pregunta">7</a>
+        <a class="num num--hecha" href="#pregunta">8</a>
+        <a class="num num--hecha" href="#pregunta">9</a>
+        <a class="num num--hecha" href="#pregunta">10</a>
+        <a class="num num--hecha" href="#pregunta">11</a>
+        <a class="num num--hecha num--actual" href="#pregunta" aria-current="true">12</a>
+        <a class="num" href="#pregunta">13</a>
+        <a class="num" href="#pregunta">14</a>
+        <a class="num" href="#pregunta">15</a>
+        <a class="num" href="#pregunta">16</a>
+        <a class="num" href="#pregunta">17</a>
+        <a class="num" href="#pregunta">18</a>
+      </div>
+
+      <div class="leyenda">
+        <span><i style="background:var(--bertel-azul);border-color:var(--bertel-azul)"></i> Respondida</span>
+        <span><i></i> Sin responder</span>
+        <span><i style="outline:2px solid var(--bertel-oro);outline-offset:1px"></i> Pregunta actual</span>
+      </div>
+
+      <button class="btn btn--acento" type="button" style="width:100%;margin-top:var(--e5)">
+        Finalizar y entregar
+      </button>
+      <p class="ayuda" style="margin-top:var(--e3)">
+        La entrega es definitiva. Una doble pulsación produce un único cierre.
+      </p>
+    </aside>
+
+  </div>
+</main>
+
+</body>
+</html>

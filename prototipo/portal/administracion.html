@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Administración — Preicfés Bertel</title>
+<link rel="icon" href="../assets/logo-bertel.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+<!-- ============================================================
+     SIN js/escena.js. La administración no necesita motor visual.
+     ============================================================ -->
+</head>
+<body>
+
+<a class="saltar" href="#principal">Saltar al contenido</a>
+
+<div class="aviso-demo" role="note">
+  <strong>Prototipo visual.</strong> Sin permisos, validación ni persistencia:
+  los roles reales se toman del PRD y del modelo de datos (Fases 2 y 4).
+</div>
+
+<div class="portal">
+
+  <nav class="lateral" aria-label="Portal">
+    <a class="marca" href="../index.html">
+      <img src="../assets/logo-bertel.png" alt="">
+      <span class="marca__texto">Preicfés Bertel<span>Administración</span></span>
+    </a>
+    <ul class="menu-lateral">
+      <li><a href="panel.html">Inicio</a></li>
+      <li><a href="simulacro.html">Mis pruebas</a></li>
+      <li><a href="resultados.html">Resultados</a></li>
+      <li><a href="administracion.html" aria-current="page">Administración</a></li>
+    </ul>
+    <p class="lateral__pie">Prototipo — Fase de diseño</p>
+  </nav>
+
+  <div class="principal">
+    <header class="barra-sup">
+      <h1>Pruebas</h1>
+      <button class="btn btn--sm" type="button">Nueva prueba</button>
+      <span class="avatar" aria-hidden="true">AD</span>
+    </header>
+
+    <main class="contenido" id="principal">
+
+      <div class="alerta alerta--aviso">
+        <span aria-hidden="true">⚠</span>
+        <span>
+          Una prueba sin preguntas calificables no debe poder publicarse, y editar una
+          pregunta no puede alterar intentos ya iniciados. Ambas reglas se implementan
+          en la Fase 4, con el mecanismo de versiones que definan las fuentes.
+        </span>
+      </div>
+
+      <!-- Filtros compactos -->
+      <form class="filtros" role="search">
+        <div class="campo">
+          <label for="f-buscar">Buscar</label>
+          <input class="entrada" id="f-buscar" type="search" placeholder="Nombre de la prueba">
+        </div>
+        <div class="campo">
+          <label for="f-estado">Estado</label>
+          <select class="entrada" id="f-estado">
+            <option>Todos</option>
+            <option>Borrador</option>
+            <option>Publicada</option>
+            <option>Cerrada</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="f-tipo">Tipo</label>
+          <select class="entrada" id="f-tipo">
+            <option>Todos</option>
+            <option>Saber 11</option>
+            <option>Por materia</option>
+          </select>
+        </div>
+        <button class="btn btn--sm btn--linea" type="submit">Filtrar</button>
+      </form>
+
+      <div class="tabla-envoltura">
+        <table class="tabla">
+          <caption class="sr">Listado de pruebas</caption>
+          <thead>
+            <tr>
+              <th scope="col">Prueba</th>
+              <th scope="col">Tipo</th>
+              <th scope="col">Preguntas</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Asignada a</th>
+              <th scope="col">Intentos</th>
+              <th scope="col"><span class="sr">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Simulacro Saber 11 — N.º 3</strong></td>
+              <td>Saber 11</td>
+              <td>50</td>
+              <td><span class="pastilla pastilla--exito">Publicada</span></td>
+              <td>Grado 11</td>
+              <td>—</td>
+              <td><div class="acciones">
+                <button class="btn btn--sm btn--linea" type="button">Editar</button>
+                <button class="btn btn--sm btn--linea" type="button">Resultados</button>
+              </div></td>
+            </tr>
+            <tr>
+              <td><strong>Refuerzo — Lectura crítica</strong></td>
+              <td>Por materia</td>
+              <td>20</td>
+              <td><span class="pastilla pastilla--exito">Publicada</span></td>
+              <td>Grado 10, Grado 11</td>
+              <td>—</td>
+              <td><div class="acciones">
+                <button class="btn btn--sm btn--linea" type="button">Editar</button>
+                <button class="btn btn--sm btn--linea" type="button">Resultados</button>
+              </div></td>
+            </tr>
+            <tr>
+              <td><strong>Simulacro Saber 11 — N.º 4</strong></td>
+              <td>Saber 11</td>
+              <td>0</td>
+              <td><span class="pastilla">Borrador</span></td>
+              <td>Sin asignar</td>
+              <td>—</td>
+              <td><div class="acciones">
+                <button class="btn btn--sm btn--linea" type="button">Editar</button>
+                <button class="btn btn--sm" type="button" disabled title="Sin preguntas calificables">Publicar</button>
+              </div></td>
+            </tr>
+            <tr>
+              <td><strong>Simulacro Saber 11 — N.º 2</strong></td>
+              <td>Saber 11</td>
+              <td>50</td>
+              <td><span class="pastilla">Cerrada</span></td>
+              <td>Grado 11</td>
+              <td>—</td>
+              <td><div class="acciones">
+                <button class="btn btn--sm btn--linea" type="button">Ver</button>
+                <button class="btn btn--sm btn--linea" type="button">Resultados</button>
+              </div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="paginacion">
+        <span>4 pruebas</span>
+        <span>
+          <button class="btn btn--sm btn--linea" type="button" disabled>Anterior</button>
+          <button class="btn btn--sm btn--linea" type="button" disabled>Siguiente</button>
+        </span>
+      </div>
+
+      <!-- Contenidos institucionales editables -->
+      <div class="titulo-bloque" style="margin-top:var(--e8)">
+        <h2>Contenidos del sitio público</h2>
+        <span class="pastilla">Se publican sin desplegar código</span>
+      </div>
+
+      <div class="tabla-envoltura">
+        <table class="tabla">
+          <caption class="sr">Contenidos editables del sitio público</caption>
+          <thead>
+            <tr>
+              <th scope="col">Contenido</th>
+              <th scope="col">Sección</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Actualizado</th>
+              <th scope="col"><span class="sr">Acciones</span></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Misión</strong></td><td>Nosotros</td>
+              <td><span class="pastilla">Pendiente</span></td><td>—</td>
+              <td><div class="acciones"><button class="btn btn--sm btn--linea" type="button">Editar</button></div></td>
+            </tr>
+            <tr>
+              <td><strong>Visión</strong></td><td>Nosotros</td>
+              <td><span class="pastilla">Pendiente</span></td><td>—</td>
+              <td><div class="acciones"><button class="btn btn--sm btn--linea" type="button">Editar</button></div></td>
+            </tr>
+            <tr>
+              <td><strong>Resultados históricos</strong></td><td>Resultados</td>
+              <td><span class="pastilla">Pendiente</span></td><td>—</td>
+              <td><div class="acciones"><button class="btn btn--sm btn--linea" type="button">Editar</button></div></td>
+            </tr>
+            <tr>
+              <td><strong>Programas</strong></td><td>Programas</td>
+              <td><span class="pastilla">Borrador</span></td><td>—</td>
+              <td><div class="acciones"><button class="btn btn--sm btn--linea" type="button">Editar</button></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>

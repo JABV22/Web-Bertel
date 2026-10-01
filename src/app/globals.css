@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+/* ============================================================
+   PLATAFORMA BERTEL — Tokens del sistema visual
+   ------------------------------------------------------------
+   Portados desde prototipo/css/tokens.css a la sintaxis de
+   Tailwind 4 (@theme). Los valores de marca están VERIFICADOS
+   a partir de los dashboards del propietario: ver docs/DISENO.md §1.
+   ============================================================ */
+
+@theme {
+  /* ---------- Marca (verificada) ---------- */
+  --color-bertel-azul: #1D3564;
+  --color-bertel-azul-900: #142647;
+  --color-bertel-azul-800: #172B55;
+  --color-bertel-azul-700: #203B70;
+  --color-bertel-azul-600: #28457F;
+
+  --color-bertel-oro: #E6B332;
+  --color-bertel-oro-600: #DCA827;
+  --color-bertel-oro-100: #F8E6AE;
+
+  /* ---------- Neutros ---------- */
+  --color-gris-texto: #667085;
+  --color-base-calida: #FAFAF7;
+  --color-superficie: #FFFFFF;
+  --color-superficie-alt: #F4F6F9;
+  --color-borde: #E4E8EF;
+  --color-borde-fuerte: #D3DAE6;
+
+  /* ---------- Semánticos ---------- */
+  --color-exito: #2D6A4F;
+  --color-error: #D64545;
+  --color-aviso: #B7791F;
+
+  /* ---------- Texto ---------- */
+  --color-texto-fuerte: #142647;
+  --color-texto: #26324A;
+
+  /* ---------- Tipografía ---------- */
+  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+
+  /* Escala fluida: se adapta al ancho sin cortes ni desbordamientos */
+  --text-display: clamp(2.6rem, 1.2rem + 5.6vw, 6rem);
+  --text-h1: clamp(2.1rem, 1.1rem + 3.9vw, 4.2rem);
+  --text-h2: clamp(1.7rem, 1.1rem + 2.4vw, 3rem);
+  --text-h3: clamp(1.25rem, 1rem + 1.05vw, 1.7rem);
+  --text-guia: clamp(1.05rem, .95rem + .6vw, 1.35rem);
+
+  /* ---------- Radios ---------- */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+
+  /* ---------- Sombras: una sola fuente de luz ---------- */
+  --shadow-s1: 0 1px 2px rgba(20, 38, 71, .05), 0 1px 1px rgba(20, 38, 71, .04);
+  --shadow-s2: 0 2px 6px rgba(20, 38, 71, .06), 0 4px 12px rgba(20, 38, 71, .05);
+  --shadow-s3: 0 6px 16px rgba(20, 38, 71, .08), 0 12px 32px rgba(20, 38, 71, .06);
+  --shadow-s4: 0 12px 28px rgba(20, 38, 71, .10), 0 28px 64px rgba(20, 38, 71, .08);
+  --shadow-panel: 0 18px 40px rgba(8, 18, 40, .28), 0 48px 96px rgba(8, 18, 40, .22);
+}
+
+/* Ancho de lectura y profundidad, fuera de @theme por no ser utilidades */
+:root {
+  --medida: 68ch;
+  --perspectiva: 1600px;
+  --cabecera-alto: 64px;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* La cabecera fija no debe tapar títulos ni destinos de ancla */
+  scroll-padding-top: calc(var(--cabecera-alto) + 24px);
+}
+
+body {
+  background: var(--color-base-calida);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  /* Evita desbordamiento horizontal (DOC-04 §92) */
+  overflow-x: hidden;
+}
+
+/* Foco visible y coherente en todo el sistema (PRD §46) */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-bertel-oro);
+  outline-offset: 3px;
+  border-radius: var(--radius-xs);
+}
+
+/* Movimiento reducido: se conserva toda la información */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

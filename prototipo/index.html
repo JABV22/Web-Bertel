@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Preicfés Bertel — Tu próximo nivel empieza aquí</title>
+<meta name="description" content="Preicfés Bertel: preparación, práctica y comprensión de resultados para las pruebas Saber.">
+<link rel="icon" href="assets/logo-bertel.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/publico.css">
+</head>
+<body>
+
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+
+<!-- ============================================================
+     AVISO DE DEMOSTRACIÓN
+     Obligatorio mientras no existan las fuentes aprobadas.
+     CLAUDE.md §6: los datos de demostración deben identificarse
+     y mantenerse fuera del contenido público definitivo.
+     ============================================================ -->
+<div class="aviso-demo" role="note">
+  <strong>Prototipo visual.</strong> Los textos, programas y cifras son
+  <strong>contenido de demostración</strong>, no información institucional aprobada.
+  Marca y colores sí están verificados a partir de los materiales del propietario.
+</div>
+
+<!-- ============================================================
+     CABECERA
+     ============================================================ -->
+<header class="cabecera">
+  <div class="cabecera__fila">
+    <a class="marca" href="#inicio">
+      <img src="assets/logo-bertel.png" alt="Preicfés Bertel">
+      <span class="marca__texto">Preicfés Bertel<span>Preparación Saber</span></span>
+    </a>
+
+    <nav aria-label="Principal">
+      <ul class="nav">
+        <li><a href="#programas">Programas</a></li>
+        <li><a href="#resultados">Resultados</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+
+    <div class="cabecera__acciones">
+      <!-- Acceso al portal disponible desde el inicio y durante todo el recorrido -->
+      <a class="btn btn--sm" href="portal/ingreso.html">Ingresar</a>
+      <button class="menu-btn" type="button" data-menu aria-expanded="false" aria-controls="menu-movil" aria-label="Abrir menú">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M3 6h14M3 10h14M3 14h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<nav id="menu-movil" class="menu-movil" data-menu-panel hidden aria-label="Principal (móvil)">
+  <a href="#programas">Programas</a>
+  <a href="#resultados">Resultados</a>
+  <a href="#nosotros">Nosotros</a>
+  <a href="#contacto">Contacto</a>
+  <a href="portal/ingreso.html">Ingresar al portal</a>
+</nav>
+
+<main id="contenido">
+
+  <!-- ============================================================
+       HERO
+       El texto y los botones no esperan a ningún recurso visual.
+       ============================================================ -->
+  <section class="hero" id="inicio">
+    <div class="envoltura hero__rejilla">
+
+      <div class="hero__texto">
+        <p class="etiqueta">Preparación Saber 11 y por materias</p>
+        <h1 class="hero__titular">Tu próximo nivel <em>empieza aquí</em>.</h1>
+        <p class="hero__apoyo">
+          Prepárate, practica y comprende tus resultados con Bertel.
+        </p>
+        <div class="hero__acciones">
+          <a class="btn btn--acento" href="#programas">Conocer los programas</a>
+          <a class="btn btn--linea" href="portal/ingreso.html">Ingresar como estudiante</a>
+        </div>
+        <p class="hero__nota">
+          <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 1.5 2.5 4v3.6c0 3.4 2.3 6.5 5.5 7.4 3.2-.9 5.5-4 5.5-7.4V4L8 1.5Z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+          </svg>
+          Simulacros dentro de la plataforma, con resultados explicables.
+        </p>
+      </div>
+
+      <!-- Escenario 3D: paneles de interfaz suspendidos -->
+      <div class="hero__escena" data-hero-escena>
+        <div class="respaldo" aria-hidden="true">
+          <span class="respaldo__texto">Vista de la plataforma</span>
+        </div>
+
+        <div class="hero__pila" role="img"
+             aria-label="Representación de la plataforma Bertel: paneles de progreso, de pregunta y de resultados suspendidos en perspectiva.">
+
+          <!-- Panel: progreso -->
+          <article class="panel panel--a" data-profundidad="1.4" aria-hidden="true">
+            <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Progreso</span></div>
+            <div class="panel__cuerpo">
+              <div class="progreso__fila">
+                <span class="progreso__cifra">—</span>
+                <span class="pastilla">Demostración</span>
+              </div>
+              <div class="barra"><div class="barra__valor" style="width:62%"></div></div>
+              <ul class="lista-materias">
+                <li><div><span>Lectura crítica</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:74%"></div></div></li>
+                <li><div><span>Matemáticas</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:58%"></div></div></li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Panel: pregunta -->
+          <article class="panel panel--b" data-profundidad="1" aria-hidden="true">
+            <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Simulacro</span></div>
+            <div class="panel__cuerpo">
+              <div class="pregunta__meta">
+                <span class="pastilla">Pregunta 12 de 50</span>
+                <span class="pastilla pastilla--acento">28:14</span>
+              </div>
+              <p class="pregunta__enunciado">
+                Según el texto, ¿cuál es la intención principal del autor en el tercer párrafo?
+              </p>
+              <ul class="opciones">
+                <li class="opcion"><span class="opcion__letra">A</span> Cuestionar una postura previa.</li>
+                <li class="opcion opcion--elegida"><span class="opcion__letra">B</span> Ampliar el argumento con un ejemplo.</li>
+                <li class="opcion"><span class="opcion__letra">C</span> Introducir una definición técnica.</li>
+              </ul>
+            </div>
+          </article>
+
+          <!-- Panel: resultado -->
+          <article class="panel panel--c" data-profundidad=".7" aria-hidden="true">
+            <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Resultado</span></div>
+            <div class="panel__cuerpo">
+              <div class="resultado__cabeza">
+                <div class="aro" style="--v:72"><span>—</span></div>
+                <div>
+                  <strong style="display:block;color:var(--texto-fuerte)">Simulacro finalizado</strong>
+                  <span style="font-size:var(--t-micro);color:var(--texto-suave)">Revisión disponible</span>
+                </div>
+              </div>
+              <div class="marcador">
+                <span class="pastilla pastilla--exito">Aciertos —</span>
+                <span class="pastilla pastilla--error">Errores —</span>
+                <span class="pastilla">Omitidas —</span>
+              </div>
+            </div>
+          </article>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================
+       ESCENA PRINCIPAL DE SCROLLYTELLING
+       Escenario sticky, progreso ligado al scroll nativo.
+       Los mensajes son HTML real, no dibujos dentro de un canvas.
+       ============================================================ -->
+  <section class="relato" data-relato aria-labelledby="relato-titulo">
+    <h2 id="relato-titulo" class="sr">Cómo funciona la experiencia Bertel</h2>
+
+    <div class="relato__pista" data-pista>
+      <div class="relato__escenario">
+        <div class="relato__rejilla">
+
+          <div class="relato__mensajes tema-oscuro">
+            <article class="paso" data-paso data-activo="true">
+              <p class="paso__indice">01 — Descubrir</p>
+              <h2>Prepárate con un propósito.</h2>
+              <p>Un plan claro, con materias, tiempos y metas que se entienden desde el primer día.</p>
+            </article>
+
+            <article class="paso" data-paso data-activo="false">
+              <p class="paso__indice">02 — Practicar</p>
+              <h2>Pon a prueba lo que sabes.</h2>
+              <p>Simulacros resueltos dentro de la plataforma, con el formato y el ritmo de la prueba real.</p>
+            </article>
+
+            <article class="paso" data-paso data-activo="false">
+              <p class="paso__indice">03 — Comprender</p>
+              <h2>Comprende tus aciertos y errores.</h2>
+              <p>Cada resultado se explica: qué respondiste, qué falló y en qué componente conviene insistir.</p>
+            </article>
+
+            <article class="paso" data-paso data-activo="false">
+              <p class="paso__indice">04 — Avanzar</p>
+              <h2>Da el siguiente paso con Bertel.</h2>
+              <p>El progreso queda registrado y guía la siguiente etapa de preparación.</p>
+            </article>
+
+            <ul class="relato__pasos" aria-hidden="true">
+              <li><i data-medidor></i></li>
+              <li><i data-medidor></i></li>
+              <li><i data-medidor></i></li>
+              <li><i data-medidor></i></li>
+            </ul>
+          </div>
+
+          <div class="relato__vista">
+            <span class="halo" aria-hidden="true"></span>
+            <div class="relato__pila" role="img"
+                 aria-label="La plataforma se aproxima, los paneles se separan para destacar una pregunta, la vista evoluciona hacia el resultado y finalmente la composición se estabiliza.">
+
+              <article class="panel" data-panel="progreso" aria-hidden="true">
+                <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Mi progreso</span></div>
+                <div class="panel__cuerpo">
+                  <div class="progreso__fila">
+                    <span class="progreso__cifra">—</span>
+                    <span class="pastilla">Demostración</span>
+                  </div>
+                  <div class="barra"><div class="barra__valor" style="width:62%"></div></div>
+                  <ul class="lista-materias">
+                    <li><div><span>Lectura crítica</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:74%"></div></div></li>
+                    <li><div><span>Matemáticas</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:58%"></div></div></li>
+                    <li><div><span>Sociales</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:66%"></div></div></li>
+                  </ul>
+                </div>
+              </article>
+
+              <article class="panel" data-panel="pregunta" aria-hidden="true">
+                <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Simulacro</span></div>
+                <div class="panel__cuerpo">
+                  <div class="pregunta__meta">
+                    <span class="pastilla">Pregunta 12 de 50</span>
+                    <span class="pastilla pastilla--acento">28:14</span>
+                  </div>
+                  <p class="pregunta__enunciado">
+                    Según el texto, ¿cuál es la intención principal del autor en el tercer párrafo?
+                  </p>
+                  <ul class="opciones">
+                    <li class="opcion"><span class="opcion__letra">A</span> Cuestionar una postura previa.</li>
+                    <li class="opcion opcion--elegida"><span class="opcion__letra">B</span> Ampliar el argumento con un ejemplo.</li>
+                    <li class="opcion"><span class="opcion__letra">C</span> Introducir una definición técnica.</li>
+                    <li class="opcion"><span class="opcion__letra">D</span> Resumir la idea del texto.</li>
+                  </ul>
+                </div>
+              </article>
+
+              <article class="panel" data-panel="resultado" aria-hidden="true">
+                <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Resultado</span></div>
+                <div class="panel__cuerpo">
+                  <div class="resultado__cabeza">
+                    <div class="aro" style="--v:72"><span>—</span></div>
+                    <div>
+                      <strong style="display:block;color:var(--texto-fuerte)">Simulacro finalizado</strong>
+                      <span style="font-size:var(--t-micro);color:var(--texto-suave)">Revisión disponible</span>
+                    </div>
+                  </div>
+                  <div class="marcador">
+                    <span class="pastilla pastilla--exito">Aciertos —</span>
+                    <span class="pastilla pastilla--error">Errores —</span>
+                    <span class="pastilla">Omitidas —</span>
+                  </div>
+                  <ul class="lista-materias">
+                    <li><div><span>Lectura crítica</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:74%"></div></div></li>
+                    <li><div><span>Matemáticas</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:58%"></div></div></li>
+                  </ul>
+                </div>
+              </article>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       PROGRAMAS
+       Sólo categorías respaldadas: CLAUDE.md §1 menciona simulacros
+       Pre-ICFES y por materias; los dashboards y la propuesta a
+       municipios acreditan el trabajo con instituciones.
+       Los datos concretos quedan "por confirmar", no se inventan.
+       ============================================================ -->
+  <section class="seccion" id="programas">
+    <div class="envoltura">
+      <div class="programas__cabeza">
+        <p class="etiqueta">Programas</p>
+        <h2>Una preparación para cada momento.</h2>
+        <p class="guia">
+          Estructura de la oferta pendiente de confirmar con el portafolio aprobado.
+          Los nombres corresponden a las modalidades ya documentadas del proyecto.
+        </p>
+      </div>
+
+      <article class="programa">
+        <div>
+          <p class="etiqueta">Programa 01</p>
+          <h3 class="programa__nombre">Preparación Saber 11</h3>
+          <p class="programa__beneficio">
+            Recorrido completo por los componentes de la prueba, con simulacros periódicos
+            y seguimiento del progreso por materia.
+          </p>
+          <ul class="datos">
+            <li><strong>Dirigido a</strong> <span>Grados 10 y 11</span></li>
+            <li><strong>Modalidad</strong> <span>Por confirmar</span></li>
+            <li><strong>Duración</strong> <span>Por confirmar</span></li>
+            <li><strong>Valor</strong> <span>Por confirmar</span></li>
+          </ul>
+          <a class="enlace-flecha" href="#contacto">Solicitar información </a>
+        </div>
+        <div class="programa__visual">
+          <article class="panel">
+            <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Plan de estudio</span></div>
+            <div class="panel__cuerpo">
+              <ul class="lista-materias">
+                <li><div><span>Lectura crítica</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:74%"></div></div></li>
+                <li><div><span>Matemáticas</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:58%"></div></div></li>
+                <li><div><span>Sociales y ciudadanas</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:66%"></div></div></li>
+                <li><div><span>Ciencias naturales</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:61%"></div></div></li>
+                <li><div><span>Inglés</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:70%"></div></div></li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </article>
+
+      <article class="programa">
+        <div>
+          <p class="etiqueta">Programa 02</p>
+          <h3 class="programa__nombre">Refuerzo por materias</h3>
+          <p class="programa__beneficio">
+            Práctica focalizada en un componente concreto, para trabajar sobre los errores
+            detectados en los simulacros.
+          </p>
+          <ul class="datos">
+            <li><strong>Dirigido a</strong> <span>Por confirmar</span></li>
+            <li><strong>Modalidad</strong> <span>Por confirmar</span></li>
+            <li><strong>Duración</strong> <span>Por confirmar</span></li>
+            <li><strong>Valor</strong> <span>Por confirmar</span></li>
+          </ul>
+          <a class="enlace-flecha" href="#contacto">Solicitar información </a>
+        </div>
+        <div class="programa__visual">
+          <article class="panel">
+            <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Práctica dirigida</span></div>
+            <div class="panel__cuerpo">
+              <div class="pregunta__meta">
+                <span class="pastilla">Sesión de refuerzo</span>
+                <span class="pastilla pastilla--acento">Demostración</span>
+              </div>
+              <p class="pregunta__enunciado">Selecciona la opción que completa correctamente el razonamiento.</p>
+              <ul class="opciones">
+                <li class="opcion"><span class="opcion__letra">A</span> Primera alternativa.</li>
+                <li class="opcion opcion--elegida"><span class="opcion__letra">B</span> Segunda alternativa.</li>
+                <li class="opcion"><span class="opcion__letra">C</span> Tercera alternativa.</li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </article>
+
+      <article class="programa">
+        <div>
+          <p class="etiqueta">Programa 03</p>
+          <h3 class="programa__nombre">Instituciones y municipios</h3>
+          <p class="programa__beneficio">
+            Acompañamiento por grupos con simulacros institucionales y reportes de resultados
+            por curso, como los ya realizados con grados 8.º y 9.º.
+          </p>
+          <ul class="datos">
+            <li><strong>Dirigido a</strong> <span>Instituciones educativas</span></li>
+            <li><strong>Modalidad</strong> <span>Por confirmar</span></li>
+            <li><strong>Duración</strong> <span>Por confirmar</span></li>
+            <li><strong>Valor</strong> <span>Por confirmar</span></li>
+          </ul>
+          <a class="enlace-flecha" href="#contacto">Solicitar información </a>
+        </div>
+        <div class="programa__visual">
+          <article class="panel">
+            <div class="panel__barra"><i class="panel__punto"></i><span class="panel__titulo">Reporte por curso</span></div>
+            <div class="panel__cuerpo">
+              <div class="progreso__fila">
+                <span class="progreso__cifra">—</span>
+                <span class="pastilla">Demostración</span>
+              </div>
+              <div class="barra"><div class="barra__valor" style="width:68%"></div></div>
+              <ul class="lista-materias">
+                <li><div><span>Grupo 8-C</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:64%"></div></div></li>
+                <li><div><span>Grupo 9-B</span><span>—</span></div><div class="barra"><div class="barra__valor" style="width:71%"></div></div></li>
+              </ul>
+            </div>
+          </article>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       RESULTADOS HISTÓRICOS
+       Ninguna cifra real disponible: no se inventan.
+       Se muestra la estructura con marcadores explícitos.
+       ============================================================ -->
+  <section class="seccion" id="resultados" style="background:var(--superficie-alt)">
+    <div class="envoltura">
+      <p class="etiqueta">Resultados</p>
+      <h2>Cifras que se pueden verificar.</h2>
+      <p class="guia">
+        Esta sección se alimenta desde la administración de la plataforma. Hasta que se carguen
+        los resultados verificados, los valores se muestran vacíos: no se publican cifras
+        estimadas ni de ejemplo.
+      </p>
+
+      <div class="resultados__rejilla">
+        <div class="cifra">
+          <p class="cifra__valor">—</p>
+          <p class="cifra__etiqueta">Estudiantes acompañados</p>
+          <p class="cifra__fuente">Pendiente de dato verificado</p>
+        </div>
+        <div class="cifra">
+          <p class="cifra__valor">—</p>
+          <p class="cifra__etiqueta">Instituciones atendidas</p>
+          <p class="cifra__fuente">Pendiente de dato verificado</p>
+        </div>
+        <div class="cifra">
+          <p class="cifra__valor">—</p>
+          <p class="cifra__etiqueta">Simulacros aplicados</p>
+          <p class="cifra__fuente">Pendiente de dato verificado</p>
+        </div>
+      </div>
+
+      <div class="grafico">
+        <h3>Promedio por componente</h3>
+        <p class="cifra__fuente" style="margin-top:var(--e2)">
+          Estructura de componentes de la prueba Saber 11. Valores pendientes de carga.
+        </p>
+        <div class="grafico__barras">
+          <div class="grafico__fila">
+            <span>Lectura crítica</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+          <div class="grafico__fila">
+            <span>Matemáticas</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+          <div class="grafico__fila">
+            <span>Sociales y ciudadanas</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+          <div class="grafico__fila">
+            <span>Ciencias naturales</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+          <div class="grafico__fila">
+            <span>Inglés</span>
+            <div class="grafico__pista"><div class="grafico__valor" style="width:0%"></div></div>
+            <span class="grafico__num">—</span>
+          </div>
+        </div>
+        <p class="grafico__pie">
+          Cada barra representa el valor exacto cargado, sin redondeos de presentación.
+          Se mostrarán periodo, contexto y procedencia junto a las cifras.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       IDENTIDAD INSTITUCIONAL
+       ============================================================ -->
+  <section class="seccion" id="nosotros">
+    <div class="envoltura editorial">
+      <div class="editorial__texto">
+        <p class="etiqueta">Nosotros</p>
+        <h2>Educación cercana, seria y aspiracional.</h2>
+
+        <div class="declaracion">
+          <h3>Misión</h3>
+          <p>
+            Texto institucional pendiente de aprobación. Existe una misión redactada en los
+            materiales del propietario, pero está atribuida a otra razón social, por lo que
+            no se publica hasta resolver esa contradicción.
+          </p>
+        </div>
+
+        <div class="declaracion">
+          <h3>Visión</h3>
+          <p>Texto institucional pendiente de entrega.</p>
+        </div>
+
+        <div class="declaracion">
+          <h3>Metodología</h3>
+          <p>
+            Descripción pendiente. El recorrido documentado del producto es
+            preparar, practicar, comprender los resultados y avanzar.
+          </p>
+        </div>
+      </div>
+
+      <div>
+        <div class="marco-foto">
+          Espacio reservado para fotografía real y autorizada del equipo Bertel.
+          No se utilizan imágenes de archivo que sugieran un equipo distinto al real.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================
+       CIERRE
+       ============================================================ -->
+  <section class="seccion seccion--oscura cierre" id="contacto">
+    <div class="envoltura envoltura--estrecha tema-oscuro">
+      <p class="etiqueta" style="justify-content:center">Siguiente paso</p>
+      <h2>Da el siguiente paso con Bertel.</h2>
+      <p>
+        Conoce la oferta completa o escribe al equipo para resolver dudas sobre
+        los programas y las fechas de los próximos simulacros.
+      </p>
+      <div class="cierre__acciones">
+        <a class="btn btn--acento" href="#programas">Ver los programas</a>
+        <a class="btn btn--linea-clara" href="portal/ingreso.html">Ingresar al portal</a>
+      </div>
+      <p style="margin-top:var(--e6);font-size:var(--t-micro)">
+        Canales de contacto pendientes de confirmar. No se publican correos ni
+        teléfonos hasta recibir los datos reales.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============================================================
+     PIE
+     ============================================================ -->
+<footer class="pie">
+  <div class="envoltura">
+    <div class="pie__rejilla">
+      <div>
+        <p class="pie__marca">Preicfés Bertel</p>
+        <p style="margin-top:var(--e3);font-size:var(--t-pequeno);max-width:34ch">
+          Preparación para las pruebas Saber: estudia, practica y comprende tus resultados.
+        </p>
+      </div>
+      <div>
+        <h4>Programas</h4>
+        <ul>
+          <li><a href="#programas">Saber 11</a></li>
+          <li><a href="#programas">Refuerzo por materias</a></li>
+          <li><a href="#programas">Instituciones</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Plataforma</h4>
+        <ul>
+          <li><a href="portal/ingreso.html">Ingresar</a></li>
+          <li><a href="portal/panel.html">Panel del estudiante</a></li>
+          <li><a href="portal/resultados.html">Resultados</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Institucional</h4>
+        <ul>
+          <li><a href="#nosotros">Quiénes somos</a></li>
+          <li><a href="#resultados">Resultados</a></li>
+          <li><a href="#contacto">Contacto</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="pie__legal">
+      <span>© <span id="anio">2026</span> Preicfés Bertel. Razón social pendiente de confirmar.</span>
+      <span>Prototipo visual — contenido de demostración.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/escena.js" defer></script>
+</body>
+</html>
