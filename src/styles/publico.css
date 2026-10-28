@@ -1,0 +1,464 @@
+/* ============================================================
+   PLATAFORMA BERTEL — Sitio público
+   Hero, escena de scrollytelling, programas, resultados,
+   identidad institucional y cierre.
+   ============================================================ */
+
+/* ============================================================
+   1. HERO
+   ============================================================ */
+
+.hero {
+  position: relative;
+  padding-block: clamp(56px, 8vw, 120px) clamp(64px, 9vw, 140px);
+  background:
+    radial-gradient(90% 70% at 78% 18%, rgba(230, 179, 50, .10) 0%, transparent 55%),
+    radial-gradient(80% 60% at 12% 30%, rgba(32, 59, 112, .07) 0%, transparent 60%),
+    var(--base-calida);
+  overflow: hidden;
+}
+
+.hero__rejilla {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 72px);
+  align-items: center;
+}
+
+.hero__titular {
+  font-size: var(--t-display);
+  font-weight: var(--peso-fuerte);
+  letter-spacing: -.035em;
+  margin-bottom: var(--e5);
+  max-width: 14ch;
+}
+.hero__titular em {
+  font-style: normal;
+  color: var(--bertel-azul);
+  position: relative;
+  white-space: nowrap;
+}
+/* Subrayado de acento dibujado, no dependiente de color solo */
+.hero__titular em::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: .04em;
+  height: .09em; border-radius: var(--r-full);
+  background: var(--bertel-oro);
+}
+
+.hero__apoyo { font-size: var(--t-guia); color: var(--texto-suave); max-width: 44ch; margin-bottom: var(--e6); }
+
+.hero__acciones { display: flex; flex-wrap: wrap; gap: var(--e3); align-items: center; }
+
+.hero__nota {
+  margin-top: var(--e6); font-size: var(--t-pequeno); color: var(--texto-suave);
+  display: flex; align-items: center; gap: var(--e2);
+}
+
+/* ---------- Escenario 3D del hero ---------- */
+
+.hero__escena {
+  position: relative;
+  min-height: 700px;                 /* reserva de espacio: evita saltos de diseño */
+  perspective: var(--perspectiva);
+  perspective-origin: 50% 42%;
+}
+
+/* Imagen de respaldo: visible hasta que la escena está lista,
+   y permanente si el guion falla o hay movimiento reducido. */
+.respaldo {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  border-radius: var(--r-xl);
+  background: linear-gradient(160deg, #EEF1F6 0%, #E3E8F1 100%);
+  border: 1px solid var(--borde);
+}
+.escena-lista .respaldo { display: none; }
+
+.hero__pila {
+  position: relative; width: 100%; height: 100%;
+  min-height: 500px;
+  transform-style: preserve-3d;
+  display: grid; place-items: center;
+}
+
+/* ============================================================
+   3. ESCENA DE SCROLLYTELLING
+   ============================================================ */
+
+.relato { background: var(--bertel-azul-900); position: relative; }
+
+/* Contenedor de recorrido. La altura define la longitud del relato.
+   Punto de partida 280vh (rango sugerido 250–300vh). */
+.relato__pista { height: 280vh; position: relative; }
+
+.relato__escenario {
+  position: sticky;
+  top: var(--cabecera-alto);
+  height: calc(100vh - var(--cabecera-alto));
+  overflow: hidden;
+  display: grid;
+  align-items: center;
+  background:
+    radial-gradient(100% 70% at 50% 0%, rgba(32, 59, 112, .60) 0%, transparent 62%),
+    linear-gradient(180deg, var(--bertel-azul-900) 0%, #0E1B33 100%);
+}
+
+.relato__rejilla {
+  width: 100%; max-width: var(--ancho-max); margin-inline: auto;
+  padding-inline: var(--canal);
+  display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 64px); align-items: center;
+}
+
+/* --- Mensajes: HTML semántico real, no dibujados en canvas --- */
+.relato__mensajes { position: relative; min-height: 260px; }
+
+.paso {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column; justify-content: center;
+  opacity: 0;
+  transition: opacity var(--mov-pausado) var(--curva);
+  pointer-events: none;
+}
+.paso[data-activo="true"] { opacity: 1; transform: none; pointer-events: auto; }
+
+.paso__indice {
+  font-size: var(--t-micro); font-weight: var(--peso-semi);
+  letter-spacing: var(--tracking-etiqueta); text-transform: uppercase;
+  color: var(--bertel-oro); margin-bottom: var(--e3);
+}
+.paso h2 { color: #fff; font-size: var(--t-h2); margin-bottom: var(--e4); max-width: 15ch; }
+.paso p { color: var(--texto-inverso-suave); max-width: 40ch; }
+
+/* Indicador de avance del relato */
+.relato__pasos {
+  display: flex; gap: var(--e2); margin-top: var(--e7); list-style: none;
+}
+.relato__pasos li {
+  height: 3px; width: 46px; border-radius: var(--r-full);
+  background: rgba(255,255,255,.20); overflow: hidden;
+}
+.relato__pasos i {
+  display: block; height: 100%; width: 0; border-radius: var(--r-full);
+  background: var(--bertel-oro);
+  transition: width var(--mov-normal) linear;
+}
+
+/* --- Escenario visual --- */
+.relato__vista {
+  position: relative;
+  height: min(62vh, 520px);
+  perspective: var(--perspectiva);
+  perspective-origin: 50% 45%;
+}
+.relato__pila { position: absolute; inset: 0; transform-style: preserve-3d; display: grid; place-items: center; }
+
+.relato .panel { box-shadow: 0 24px 50px rgba(4, 10, 24, .45), 0 60px 120px rgba(4, 10, 24, .35); }
+
+/* Resplandor de acento bajo la escena, decorativo */
+.halo {
+  position: absolute; left: 50%; bottom: 6%;
+  width: 62%; height: 130px; transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(230,179,50,.28), transparent 78%);
+  filter: blur(24px); pointer-events: none;
+}
+
+/* ============================================================
+   4. PROGRAMAS
+   ============================================================ */
+
+.programas__cabeza { max-width: var(--ancho-estrecho); margin-bottom: var(--e8); }
+
+.programa {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+  padding-block: var(--e8);
+  border-top: 1px solid var(--borde);
+}
+.programa:nth-child(even) > .programa__visual { order: -1; }
+
+.programa__nombre { font-size: var(--t-h2); margin-bottom: var(--e4); }
+.programa__beneficio { font-size: var(--t-guia); color: var(--texto-suave); margin-bottom: var(--e5); }
+
+.datos { list-style: none; display: grid; gap: var(--e3); margin-bottom: var(--e6); }
+.datos li { display: flex; gap: var(--e3); align-items: baseline; font-size: var(--t-pequeno); }
+.datos dt, .datos strong { color: var(--texto-fuerte); font-weight: var(--peso-semi); min-width: 108px; }
+.datos span { color: var(--texto-suave); }
+
+/* Visual del programa: profundidad sutil, sin perder legibilidad */
+.programa__visual {
+  perspective: 1400px;
+  display: grid; place-items: center;
+  min-height: 300px;
+}
+.programa__visual .panel {
+  position: relative;
+  width: 100%; max-width: 420px;
+  box-shadow: var(--s-4);
+  transform: rotateY(-9deg) rotateX(3deg);
+  transition: transform var(--mov-pausado) var(--curva-salida);
+}
+.programa:nth-child(even) .programa__visual .panel { transform: rotateY(9deg) rotateX(3deg); }
+.programa__visual .panel:hover { transform: rotateY(0) rotateX(0); }
+
+/* ============================================================
+   5. RESULTADOS
+   ============================================================ */
+
+.resultados__rejilla {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--e5); margin-top: var(--e7);
+}
+
+.cifra { padding: var(--e6); border-radius: var(--r-lg); background: var(--superficie); border: 1px solid var(--borde); }
+.cifra__valor {
+  font-size: clamp(2.4rem, 1.4rem + 3vw, 3.6rem);
+  font-weight: var(--peso-fuerte); color: var(--bertel-azul);
+  letter-spacing: -.035em; line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.cifra__etiqueta { margin-top: var(--e3); font-weight: var(--peso-semi); color: var(--texto-fuerte); }
+.cifra__fuente { margin-top: var(--e2); font-size: var(--t-micro); color: var(--texto-suave); }
+
+/* ============================================================
+   6. IDENTIDAD INSTITUCIONAL
+   ============================================================ */
+
+.editorial {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(32px, 5vw, 80px); align-items: start;
+}
+.editorial__texto p + p { margin-top: var(--e4); }
+.editorial__texto p { color: var(--texto-suave); }
+
+.declaracion {
+  border-left: 3px solid var(--bertel-oro);
+  padding-left: var(--e5);
+  margin-block: var(--e6);
+}
+.declaracion h3 { margin-bottom: var(--e2); }
+
+.marco-foto {
+  border-radius: var(--r-lg); overflow: hidden;
+  background: var(--superficie-alt); border: 1px solid var(--borde);
+  aspect-ratio: 4 / 5;
+  display: grid; place-items: center; text-align: center;
+  padding: var(--e6); color: var(--texto-suave); font-size: var(--t-pequeno);
+}
+
+/* ============================================================
+   7. CIERRE
+   ============================================================ */
+
+.cierre { text-align: center; }
+.cierre h2 { font-size: var(--t-h1); margin-bottom: var(--e4); margin-inline: auto; max-width: 16ch; color: #fff; }
+.cierre p { margin-inline: auto; margin-bottom: var(--e7); color: var(--texto-inverso-suave); max-width: 46ch; }
+.cierre__acciones { display: flex; gap: var(--e3); justify-content: center; flex-wrap: wrap; }
+
+/* ============================================================
+   8. ADAPTACIÓN MÓVIL
+   La secuencia sticky se sustituye por bloques verticales. 
+   ============================================================ */
+
+@media (max-width: 1200px) {
+  .hero__titular { em { font-size: var(--t-h1); } }
+}
+
+@media (max-width: 980px) {
+  .hero__rejilla { grid-template-columns: 1fr; }
+  .hero__titular { max-width: 18ch; em {font-size: var(--t-display);} } 
+  .hero__escena { min-height: 380px; order: 2;  }
+
+  .editorial { grid-template-columns: 1fr; }
+  .programa, .programa:nth-child(even) { grid-template-columns: 1fr; }
+  .programa:nth-child(even) > .programa__visual { order: 0; }
+
+  .nav { display: none; }
+  .menu-btn { display: inline-flex; }
+  .cabecera__acciones .btn--linea { display: none; }
+}
+
+@media (max-width: 980px) {
+  .hero__rejilla { grid-template-columns: 1fr; }
+  .hero__titular { max-width: 18ch; }
+  .hero__escena { min-height: 380px; order: 2; }
+
+  .editorial { grid-template-columns: 1fr; }
+  .programa, .programa:nth-child(even) { grid-template-columns: 1fr; }
+  .programa:nth-child(even) > .programa__visual { order: 0; }
+
+  .nav { display: none; }
+  .menu-btn { display: inline-flex; }
+  .cabecera__acciones .btn--linea { display: none; }
+}
+
+@media (max-width: 980px) {
+  /* Sin recorrido sticky: bloques verticales ligeros */
+  .relato__pista { height: auto; }
+  .relato__escenario { position: static; height: auto; padding-block: var(--seccion-y); }
+  .relato__rejilla { grid-template-columns: 1fr; }
+  .relato__mensajes { position: static; min-height: 0; display: grid; gap: var(--e8); }
+  .paso {
+    position: static; opacity: 1; transform: none; pointer-events: auto;
+    display: grid; gap: var(--e4);
+    justify-items: start;
+  }
+  /* Titulares y textos a ancho completo y alineados a la izquierda */
+  .paso > * { justify-self: stretch !important; width: 100% !important; max-width: 100% !important; }
+  .paso h2 { text-wrap: pretty; }
+
+  .paso h2 { max-width: none; }
+  .relato__pasos { display: none; }
+  /* Los paneles dejan de estar superpuestos: se apilan y se leen */
+  .relato__vista { height: auto; perspective: none; }
+  .relato__pila { position: static; display: grid; gap: var(--e5); place-items: stretch; }
+  .relato__pila .panel {
+    position: relative; width: 100%; max-width: 420px; margin-inline: auto;
+    transform: none !important; opacity: 1 !important;
+    box-shadow: 0 14px 32px rgba(4, 10, 24, .38);
+  }
+  .relato__pila .panel::after { display: none; }
+  .halo { display: none; }
+
+  /* Profundidad reducida en móvil */
+  .relato__vista, .hero__escena { perspective: 1100px; }
+}
+
+@media (max-width: 560px) {
+  .hero__escena, .hero__pila { min-height: 320px; }
+  .panel { width: min(320px, 92%); }
+  .grafico__fila { grid-template-columns: 100px 1fr 54px; gap: var(--e3); }
+  .hero__acciones .btn { width: 100%; }
+}
+
+/* ============================================================
+   9. MOVIMIENTO REDUCIDO
+   Composición estática completa, sin movimiento de cámara,
+   conservando todos los mensajes.
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .relato__pista { height: auto; }
+  .relato__escenario { position: static; height: auto; padding-block: var(--seccion-y); }
+  .relato__rejilla { grid-template-columns: 1fr; }
+  .relato__mensajes { position: static; min-height: 0; display: grid; gap: var(--e7); }
+  .paso { position: static; opacity: 1; transform: none; pointer-events: auto; justify-items: start; }
+  /* Titulares y textos a ancho completo y alineados a la izquierda */
+  .paso > * { justify-self: stretch !important; width: 100% !important; max-width: 100% !important; }
+  .paso h2 { text-wrap: pretty; }
+
+  .relato__pasos { display: none; }
+  /* Los paneles dejan de estar superpuestos: se apilan y se leen */
+  .relato__vista { height: auto; perspective: none; }
+  .relato__pila { position: static; display: grid; gap: var(--e5); place-items: stretch; }
+  .relato__pila .panel {
+    position: relative; width: 100%; max-width: 420px; margin-inline: auto;
+    transform: none !important; opacity: 1 !important;
+    box-shadow: 0 14px 32px rgba(4, 10, 24, .38);
+  }
+  .relato__pila .panel::after { display: none; }
+  .halo { display: none; }
+
+  .programa__visual .panel, .programa__visual .panel:hover { transition: none; }
+  .enlace-flecha::after { transition: none; }
+}
+
+/* ============================================================
+   10. DISPOSICIÓN DE LOS PANELES DEL HERO
+   Composición en perspectiva con paralaje suave de puntero.
+   Las variables --mx/--my las escribe escena.js; si el guion
+   no corre, valen 0deg y la composición queda estática y válida.
+   ============================================================ */
+
+.hero__pila .panel {
+  transition: transform var(--mov-pausado) var(--curva-salida);
+}
+
+.hero__pila .panel--a {           /* progreso: al fondo, a la izquierda */
+  width: min(276px, 64%);
+  transform: translate3d(-64%, -40%, -180px)
+             rotateY(calc(13deg + var(--mx, 0deg)))
+             rotateX(calc(5deg + var(--my, 0deg)));
+  z-index: 1;
+}
+
+.hero__pila .panel--b {           /* pregunta: protagonista, al frente */
+  width: min(368px, 84%);
+  transform: translate3d(1%, -1%, 40px)
+             rotateY(calc(-6deg + var(--mx, 0deg)))
+             rotateX(calc(3deg + var(--my, 0deg)));
+  z-index: 3;
+}
+
+.hero__pila .panel--c {           /* resultado: adelante y abajo */
+  width: min(266px, 62%);
+  transform: translate3d(35%, 47%, 120px)
+             rotateY(calc(-11deg + var(--mx, 0deg)))
+             rotateX(calc(2deg + var(--my, 0deg)));
+  z-index: 4;
+}
+
+@media (max-width: 560px) {
+  .hero__pila .panel--a { transform: translate3d(-26%, -26%, -120px) rotateY(10deg) rotateX(4deg); }
+  .hero__pila .panel--b { transform: translate3d(2%, 0, 20px) rotateY(-4deg) rotateX(2deg); }
+  .hero__pila .panel--c { transform: translate3d(20%, 32%, 60px) rotateY(-8deg) rotateX(2deg); }
+}
+
+.respaldo__texto {
+  font-size: var(--t-pequeno);
+  font-weight: var(--peso-semi);
+  color: var(--texto-suave);
+  letter-spacing: var(--tracking-etiqueta);
+  text-transform: uppercase;
+}
+
+/* Si el guion falla, la escena nunca recibe .escena-lista y el
+   respaldo permanece visible sobre los paneles. */
+.escena-fallida .hero__pila { opacity: 0; }
+
+/* ============================================================
+   11. MENÚ MÓVIL
+   Operable con una mano, sin depender de hover.
+   ============================================================ */
+
+.menu-movil[hidden] { display: none !important; }
+
+.menu-movil {
+  position: sticky;
+  top: var(--cabecera-alto);
+  z-index: 99;
+  display: grid;
+  gap: var(--e1);
+  padding: var(--e4) var(--canal) var(--e5);
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+  box-shadow: var(--s-3);
+}
+.menu-movil a {
+  padding: 14px var(--e4);
+  border-radius: var(--r-sm);
+  font-size: 1.05rem;
+  font-weight: var(--peso-medio);
+  color: var(--texto-fuerte);
+  text-decoration: none;
+}
+.menu-movil a:hover, .menu-movil a:focus-visible { background: var(--superficie-alt); }
+.menu-movil a:last-child {
+  margin-top: var(--e2);
+  background: var(--bertel-azul);
+  color: #fff;
+  text-align: center;
+  font-weight: var(--peso-semi);
+}
+
+@media (min-width: 981px) {
+  .menu-movil { display: none !important; }
+}
+
+/* Movimiento reducido: sin paralaje de puntero */
+@media (prefers-reduced-motion: reduce) {
+  .hero__pila .panel { transition: none; }
+}
