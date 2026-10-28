@@ -12,10 +12,22 @@ const FASES = [
   { n: 0, nombre: "Cotejo y plan ejecutable", estado: "cerrada" },
   { n: 1, nombre: "Base técnica y entorno", estado: "actual" },
   { n: 2, nombre: "Datos, autenticación y autorización", estado: "pendiente" },
-  { n: 3, nombre: "Sitio público y contenidos administrables", estado: "pendiente" },
-  { n: 4, nombre: "Banco de preguntas y construcción de pruebas", estado: "pendiente" },
+  {
+    n: 3,
+    nombre: "Sitio público y contenidos administrables",
+    estado: "pendiente",
+  },
+  {
+    n: 4,
+    nombre: "Banco de preguntas y construcción de pruebas",
+    estado: "pendiente",
+  },
   { n: 5, nombre: "Resolución de simulacros", estado: "pendiente" },
-  { n: 6, nombre: "Calificación, revisión y seguimiento", estado: "pendiente" },
+  {
+    n: 6,
+    nombre: "Calificación, revisión y seguimiento",
+    estado: "pendiente  ",
+  },
 ] as const;
 
 const ESTILO_ESTADO: Record<string, string> = {
@@ -61,8 +73,8 @@ export default function Home() {
 
       <p className="mb-10 max-w-[46ch] text-guia leading-relaxed text-gris-texto">
         Esta no es la página de inicio del producto. Es una página de espera que
-        confirma que el entorno funciona. La interfaz real se construye en la Fase 3,
-        a partir de los wireframes aprobados.
+        confirma que el entorno funciona. La interfaz real se construye en la
+        Fase 3, a partir de los wireframes aprobados.
       </p>
 
       <ol className="mb-10 divide-y divide-borde overflow-hidden rounded-lg border border-borde bg-superficie">
@@ -82,8 +94,15 @@ export default function Home() {
       </ol>
 
       <p className="text-sm text-gris-texto">
-        Estado detallado en <code className="rounded bg-superficie-alt px-1.5 py-0.5 text-xs">docs/ESTADO.md</code>.
-        Referencia visual navegable en <code className="rounded bg-superficie-alt px-1.5 py-0.5 text-xs">prototipo/</code>.
+        Estado detallado en{" "}
+        <code className="rounded bg-superficie-alt px-1.5 py-0.5 text-xs">
+          docs/ESTADO.md
+        </code>
+        . Referencia visual navegable en{" "}
+        <code className="rounded bg-superficie-alt px-1.5 py-0.5 text-xs">
+          prototipo/
+        </code>
+        .
       </p>
     </main>
   );
