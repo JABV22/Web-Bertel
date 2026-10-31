@@ -2,37 +2,38 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { SyntheticEvent, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/demo-login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password, remember }),
-      });
+      const { error: authError } = await createClient().auth.signInWithPassword(
+        {
+          email: email.trim(),
+          password,
+        },
+      );
 
-      if (!response.ok) {
-        const data = (await response.json()) as { message?: string };
-        setError(data.message ?? "No fue posible iniciar sesión.");
+      if (authError) {
+        setError("El correo o la contraseña no son correctos.");
         return;
       }
 
-      router.push("/panel");
+      router.replace("/panel");
+      router.refresh();
     } catch {
-      setError("No fue posible conectar con el acceso de prueba.");
+      setError("No fue posible conectar con el servicio de acceso.");
     } finally {
       setIsSubmitting(false);
     }
@@ -41,26 +42,29 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
       <div>
-        <label htmlFor="usuario" className="mb-2 block text-sm font-semibold text-texto-fuerte">
-          Usuario
+        <label
+          htmlFor="correo"
+          className="mb-2 block text-sm font-semibold text-texto-fuerte"
+        >
+          Correo electrónico
         </label>
         <input
-          id="usuario"
-          name="usuario"
-          type="text"
-          autoComplete="username"
+          id="correo"
+          name="correo"
+          type="email"
+          autoComplete="email"
           required
-          value={username}
-          onChange={(event) => setUsername(event.target.value)}
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
           className="w-full rounded-lg border border-borde-fuerte bg-superficie px-4 py-3 text-sm text-texto outline-none focus:border-bertel-oro"
         />
-        <p className="mt-2 text-xs leading-5 text-gris-texto">
-          En la versión real, el identificador será definido por la arquitectura.
-        </p>
       </div>
 
       <div>
-        <label htmlFor="clave" className="mb-2 block text-sm font-semibold text-texto-fuerte">
+        <label
+          htmlFor="clave"
+          className="mb-2 block text-sm font-semibold text-texto-fuerte"
+        >
           Contraseña
         </label>
         <input
@@ -75,23 +79,17 @@ export function LoginForm() {
         />
       </div>
 
-      <div className="flex items-center justify-between gap-3 text-sm">
-        <label className="flex items-center gap-2 text-gris-texto">
-          <input
-            type="checkbox"
-            checked={remember}
-            onChange={(event) => setRemember(event.target.checked)}
-            className="h-4 w-4 accent-bertel-azul"
-          />
-          Mantener la sesión
-        </label>
+      <div className="flex justify-end text-sm">
         <Link href="#" className="text-bertel-azul hover:underline">
           ¿Olvidaste tu contraseña?
         </Link>
       </div>
 
       {error && (
-        <p className="rounded-lg bg-error/10 px-4 py-3 text-sm text-error" role="alert">
+        <p
+          className="rounded-lg bg-error/10 px-4 py-3 text-sm text-error"
+          role="alert"
+        >
           {error}
         </p>
       )}
