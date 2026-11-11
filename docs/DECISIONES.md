@@ -7,15 +7,15 @@
 
 ## 1. Matriz exigida por CLAUDE.md §5
 
-| Decisión | Valor confirmado | Estado | Fuente |
-|---|---|---|---|
-| **Frontend** | Next.js + TypeScript. Server Components, renderizado en servidor. UI con **Tailwind CSS** y componentes accesibles. Estructura `src/app`, `components`, `features`, `lib`, `services`, `types`, `hooks`, `validations`, `config`. | **CONFIRMADA** | ARCH §5, §51, §87 |
-| **Backend** | Sin backend independiente en el MVP. Capa de servidor de Next.js: Server Components, Server Actions, Route Handlers y servicios internos. Lógica de negocio en la capa de aplicación/dominio, nunca en presentación. | **CONFIRMADA** | ARCH §5, §6, §7 |
-| **Autenticación** | **Supabase Auth**. Correo + contraseña (WIREFRAMES A01). Recuperación por enlace (A02–A04). Estados de cuenta: `invited`, `active`, `inactive`, `suspended`. Roles: `student`, `teacher`, `coordinator`, `admin`, `superadmin`. | **CONFIRMADA** | ARCH §5, §10, §11 · PRD §16 · DB §8 |
-| **Base de datos** | **PostgreSQL vía Supabase**. Esquemas `public`, `private`, `auth`, `storage`. UUID como PK, `timestamptz`. Migraciones SQL versionadas (`001_initial_schema.sql`…). Autorización por **RLS** + verificación en servidor. | **CONFIRMADA** | ARCH §5, §64 · DB §2, §3, §86 |
-| **Archivos** | **Supabase Storage**. Los archivos viven fuera de la DB; `media_assets` guarda metadatos. Buckets: `/public`, `/questions`, `/private`. Visibilidad por archivo. | **CONFIRMADA** | ARCH §5, §55, §56 · DB §19 |
-| **Operación** | Hosting **Vercel**, repositorio **GitHub**, dominio `www.preicfesbertel.com`. Entornos: Development, Staging (recomendado), Production. Secretos solo en variables de entorno; `service_role` **solo** en servidor. Logging por categorías: AUTH, DATABASE, EXAM, SCORING, UPLOAD, ADMIN. | **CONFIRMADA** | ARCH §4, §5, §60–63, §54 |
-| **Validación** | Dos niveles: frontend para experiencia, backend para integridad y seguridad. Rama principal `main`, ramas `feature/*` y `fix/*`, cambios pequeños y verificables. | **CONFIRMADA** | ARCH §52, §84 |
+| Decisión          | Valor confirmado                                                                                                                                                                                                                                                                          | Estado         | Fuente                              |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ----------------------------------- |
+| **Frontend**      | Next.js + TypeScript. Server Components, renderizado en servidor. UI con **Tailwind CSS** y componentes accesibles. Estructura `src/app`, `components`, `features`, `lib`, `services`, `types`, `hooks`, `validations`, `config`.                                                         | **CONFIRMADA** | ARCH §5, §51, §87                   |
+| **Backend**       | Sin backend independiente en el MVP. Capa de servidor de Next.js: Server Components, Server Actions, Route Handlers y servicios internos. Lógica de negocio en la capa de aplicación/dominio, nunca en presentación.                                                                      | **CONFIRMADA** | ARCH §5, §6, §7                     |
+| **Autenticación** | **Supabase Auth**. Correo + contraseña (WIREFRAMES A01). Recuperación por enlace (A02–A04). Estados de cuenta: `invited`, `active`, `inactive`, `suspended`. Roles: `student`, `teacher`, `coordinator`, `admin`, `superadmin`.                                                           | **CONFIRMADA** | ARCH §5, §10, §11 · PRD §16 · DB §8 |
+| **Base de datos** | **PostgreSQL vía Supabase**. Esquemas `public`, `private`, `auth`, `storage`. UUID como PK, `timestamptz`. Migraciones SQL versionadas (`001_initial_schema.sql`…). Autorización por **RLS** + verificación en servidor.                                                                  | **CONFIRMADA** | ARCH §5, §64 · DB §2, §3, §86       |
+| **Archivos**      | **Supabase Storage**. Los archivos viven fuera de la DB; `media_assets` guarda metadatos. Buckets: `/public`, `/questions`, `/private`. Visibilidad por archivo.                                                                                                                          | **CONFIRMADA** | ARCH §5, §55, §56 · DB §19          |
+| **Operación**     | Hosting **Vercel**, repositorio **GitHub**, dominio `www.preicfesbertel.com`. Entornos: Development, Staging (recomendado), Production. Secretos solo en variables de entorno; `service_role` **solo** en servidor. Logging por categorías: AUTH, DATABASE, EXAM, SCORING, UPLOAD, ADMIN. | **CONFIRMADA** | ARCH §4, §5, §60–63, §54            |
+| **Validación**    | Dos niveles: frontend para experiencia, backend para integridad y seguridad. Rama principal `main`, ramas `feature/*` y `fix/*`, cambios pequeños y verificables.                                                                                                                         | **CONFIRMADA** | ARCH §52, §84                       |
 
 **Versiones concretas:** DOC-02 no fija números de versión. Se elegirán las estables vigentes al
 crear el proyecto y se registrarán aquí una vez instaladas (Fase 1). No se instalará una versión
@@ -39,34 +39,34 @@ Y de DATABASE.md §55 (inmutabilidad): `QuestionVersion` tras `published`, `Exam
 
 ## 3. Decisiones locales de Claude (reversibles)
 
-| # | Decisión | Estado tras el cotejo |
-|---|---|---|
-| DEC-L01 | Crear `CLAUDE.md` en la raíz | Vigente |
-| DEC-L02 | Reconstruir el formato de tablas de `CLAUDE.md` | Vigente |
-| DEC-L03 | Crear los documentos de Fase 0 | Vigente; ahora con contenido real |
-| DEC-L04 | No inicializar Git ni instalar dependencias | **Caduca en Fase 1**: ARCH §84 exige Git con `main` + ramas `feature/*` |
-| DEC-L05 | No copiar material de `Downloads` al proyecto | Parcialmente revocada: los 4 documentos sí se copiaron a `docs/` |
-| DEC-L06 | Prototipo sin dependencias en `prototipo/` | **Se convierte en referencia visual.** El código productivo será Next.js (ARCH §5). Ver §4 |
-| DEC-L07 | CSS 3D en lugar de WebGL | Vigente y compatible: no añade dependencias sobre Tailwind |
-| DEC-L08 | Marca `#1D3564` / `#E6B332` con Inter | Vigente. DOC-01 §45 pide identidad «profesional, moderna, académica, confiable, juvenil sin resultar infantil» — coherente |
-| DEC-L09 | Extraer el logotipo real del dashboard | Vigente. Único activo de marca disponible |
-| DEC-L10 | Cifras como «—» y datos «Por confirmar» | Vigente hasta cargar `institutional_metrics` desde administración |
-| **DEC-L11** | Guardar los 4 documentos en `docs/` y no en `docs/fuentes/` | **Nueva.** ARCHITECTURE §85 fija esa ruta explícitamente; prevalece sobre la sugerencia de CLAUDE.md §2 |
-| **DEC-L12** | Conservar la tilde de «Preicfés» en la interfaz hasta resolver CONF-02 | **Nueva.** El logotipo real la lleva; cambiarla sin confirmar alteraría la marca |
+| #           | Decisión                                                               | Estado tras el cotejo                                                                                                      |
+| ----------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| DEC-L01     | Crear `CLAUDE.md` en la raíz                                           | Vigente                                                                                                                    |
+| DEC-L02     | Reconstruir el formato de tablas de `CLAUDE.md`                        | Vigente                                                                                                                    |
+| DEC-L03     | Crear los documentos de Fase 0                                         | Vigente; ahora con contenido real                                                                                          |
+| DEC-L04     | No inicializar Git ni instalar dependencias                            | **Caduca en Fase 1**: ARCH §84 exige Git con `main` + ramas `feature/*`                                                    |
+| DEC-L05     | No copiar material de `Downloads` al proyecto                          | Parcialmente revocada: los 4 documentos sí se copiaron a `docs/`                                                           |
+| DEC-L06     | Prototipo sin dependencias en `prototipo/`                             | **Se convierte en referencia visual.** El código productivo será Next.js (ARCH §5). Ver §4                                 |
+| DEC-L07     | CSS 3D en lugar de WebGL                                               | Vigente y compatible: no añade dependencias sobre Tailwind                                                                 |
+| DEC-L08     | Marca `#1D3564` / `#E6B332` con Inter                                  | Vigente. DOC-01 §45 pide identidad «profesional, moderna, académica, confiable, juvenil sin resultar infantil» — coherente |
+| DEC-L09     | Extraer el logotipo real del dashboard                                 | Vigente. Único activo de marca disponible                                                                                  |
+| DEC-L10     | Cifras como «—» y datos «Por confirmar»                                | Vigente hasta cargar `institutional_metrics` desde administración                                                          |
+| **DEC-L11** | Guardar los 4 documentos en `docs/` y no en `docs/fuentes/`            | **Nueva.** ARCHITECTURE §85 fija esa ruta explícitamente; prevalece sobre la sugerencia de CLAUDE.md §2                    |
+| **DEC-L12** | Conservar la tilde de «Preicfés» en la interfaz hasta resolver CONF-02 | **Nueva.** El logotipo real la lleva; cambiarla sin confirmar alteraría la marca                                           |
 
 ## 4. Destino del prototipo visual
 
 El prototipo de `prototipo/` **no se descarta ni se despliega tal cual**. Su valor es el sistema
 visual verificado, que se porta a Next.js + Tailwind:
 
-| Elemento del prototipo | Destino en el stack confirmado |
-|---|---|
-| `css/tokens.css` | `tailwind.config.ts` (`theme.extend`) + variables CSS globales |
-| `css/base.css` (componentes compartidos) | `src/components/ui/*` |
-| `js/escena.js` | Componente cliente de la landing, con `destruir()` en el `useEffect` de limpieza |
-| `index.html` | `src/app/(public)/page.tsx` |
-| `portal/*.html` | `src/app/campus/*` y `src/app/admin/*` |
-| `assets/logo-bertel.png` | `public/` |
+| Elemento del prototipo                   | Destino en el stack confirmado                                                   |
+| ---------------------------------------- | -------------------------------------------------------------------------------- |
+| `css/tokens.css`                         | `tailwind.config.ts` (`theme.extend`) + variables CSS globales                   |
+| `css/base.css` (componentes compartidos) | `src/components/ui/*`                                                            |
+| `js/escena.js`                           | Componente cliente de la landing, con `destruir()` en el `useEffect` de limpieza |
+| `index.html`                             | `src/app/(public)/page.tsx`                                                      |
+| `portal/*.html`                          | `src/app/campus/*` y `src/app/admin/*`                                           |
+| `assets/logo-bertel.png`                 | `public/`                                                                        |
 
 **Correcciones obligatorias antes de portarlo** (detectadas en el cotejo):
 
@@ -86,3 +86,26 @@ visual verificado, que se porta a Next.js + Tailwind:
 4. **Autorización del material** (portafolios, simulacros, claves) como contenido y banco de preguntas.
 5. **Contenido institucional real**: historia, misión, visión, valores, equipo, testimonios y cifras
    verificadas (PRD §12, §14).
+
+## 6. Decisiones confirmadas por el propietario — 2026-11-09
+
+El propietario confirma que el esquema adjunto de Supabase es la fuente vigente para esta
+implementación y sustituye, en el alcance de datos y evaluaciones, el modelo distinto documentado
+en `DATABASE.md` v1.0. El documento original se conserva sin reescritura.
+
+| Tema                  | Decisión                                                                                                                         | Estado     |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| Roles de la imagen    | `admin`, `profesor`, `estudiante`, relacionados mediante `user_roles` y `roles`.                                                 | CONFIRMADA |
+| Acceso a evaluaciones | Toda cuenta activa con rol `estudiante` puede iniciar cualquier evaluación `published`; no se agrega asignación por grupo/curso. | CONFIRMADA |
+| Alcance docente       | Resultados y revisiones solo de estudiantes matriculados en cursos asignados mediante `course_teachers`.                         | CONFIRMADA |
+| Calificación          | Igual peso por pregunta; porcentaje de aciertos con dos decimales; no convertir a escala 0–500.                                  | CONFIRMADA |
+| Reintentos            | Un intento por estudiante y evaluación hasta que el propietario defina un límite configurable; el esquema no contiene `attempts_allowed`. | PROPUESTA CONSERVADORA |
+
+El esquema adjunto no implementa versionado de preguntas/evaluaciones ni modelos de calificación.
+Por ello, la migración bloquea la clave de respuestas al cliente y califica con las respuestas y
+claves persistidas, pero no ofrece instantáneas inmutables de pruebas editadas después de iniciar
+intentos. Antes de operar contenido real, las evaluaciones publicadas deben tratarse como inmutables.
+
+La migración `supabase/migrations/001_exam_authorization.sql` es aditiva y asume que las tablas del
+esquema adjunto ya existen. No es un esquema inicial reproducible desde una base vacía, no se ha
+aplicado a Supabase y requiere validación en un entorno de pruebas antes de producción.

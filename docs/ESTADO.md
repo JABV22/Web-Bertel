@@ -1,5 +1,44 @@
 # ESTADO — Registro de sesión
 
+## Sesión 2026-11-09 — Integración inicial de evaluaciones y roles
+
+**Fase activa:** 2 — Datos, autenticación y autorización. **Estado:** código implementado; migración
+pendiente de validación y aplicación en un proyecto Supabase de desarrollo.
+
+### Decisiones y cambios
+
+- El propietario confirmó que el esquema adjunto de Supabase es la fuente vigente para esta
+  implementación; `docs/DATABASE.md` v1.0 se conserva como fuente histórica distinta.
+- Se adoptaron los roles `admin`, `profesor` y `estudiante`; estudiantes activos pueden presentar
+  todas las evaluaciones publicadas.
+- Los docentes solo ven resultados de estudiantes matriculados en sus cursos asignados.
+- La nota es porcentaje de aciertos de igual peso, sin escala 0–500.
+- Se limita a un intento por estudiante/evaluación mientras el esquema no defina reintentos; se
+  puede cambiar al agregar una regla explícita.
+- Se añadió RLS y RPC transaccionales en `supabase/migrations/001_exam_authorization.sql`.
+- El portal ya lista pruebas publicadas, inicia/reanuda intentos, persiste respuestas, usa el plazo
+  del servidor y muestra resultados guardados.
+- Se protegieron rutas de panel, resultados y administración según rol.
+
+### Verificación
+
+| Comando / comprobación    | Resultado                                                                      |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| `pnpm lint`               | Correcto                                                                       |
+| `pnpm build`              | Correcto; rutas `/simulacro/[attemptId]` y `/resultados/[attemptId]` generadas |
+| Conexión DB de inspección | No disponible: el cliente de bases de datos no tiene conexión configurada      |
+| Migración SQL en Supabase | No ejecutada ni validada remotamente                                           |
+
+### Límites y siguiente acción
+
+- La migración supone que las tablas del esquema adjunto ya existen; no inicializa una base vacía.
+- El modelo adjunto no incluye versiones/instantáneas de pruebas. Debe evitarse editar preguntas o
+  evaluaciones publicadas con intentos existentes hasta resolver el versionado.
+- La clave privada debe contener una opción correcta válida por pregunta antes de publicar; la
+  migración aún requiere una prueba real de integridad, RLS y concurrencia en staging.
+- Próximo paso: verificar el esquema remoto y aplicar esta migración únicamente en staging; después
+  ejecutar escenarios de estudiante, profesor y administrador antes de producción.
+
 ## Sesión 2026-09-05 (c) — Fase 0 CERRADA con las fuentes reales
 
 **Fecha:** 2026-09-05 · **Rama / commit:** todavía sin repositorio Git (se crea en Fase 1)
@@ -13,25 +52,25 @@ El propietario entregó los cuatro documentos. Estaban en la carpeta `Downloads`
 la ruta que fija ARCHITECTURE §85. No se transcribieron: el texto adjunto al chat llegó con mojibake,
 mientras que los archivos en disco son UTF-8 correcto.
 
-| Trabajo | Evidencia |
-|---|---|
-| 4/4 documentos leídos íntegros | PRD 980 líneas · ARCHITECTURE 1.319 · DATABASE 1.665 · WIREFRAMES 1.216 |
-| Stack confirmado | ARCH §5 y §87: Next.js + TypeScript + Tailwind + Supabase/PostgreSQL + Vercel + GitHub |
-| `DECISIONES.md` | Las 7 decisiones de CLAUDE.md §5 pasan de PENDIENTE a **CONFIRMADA**, con su sección de origen |
-| `PANTALLAS.md` | Inventario con IDs originales (P01–P11, A01–A04, C01–C15, AD01–AD48) y estados transversales |
-| `TRAZABILIDAD.md` | 20 criterios `CA-xx` (PRD §65) + 10 reglas `RB-xxx` (PRD §59), con fase y tablas |
-| `ROADMAP.md` | Fase 0 cerrada; reconciliado con el orden de construcción de ARCH §80 |
-| MVP identificado | PRD §60; fuera de alcance PRD §61; prioridades P0–P3 PRD §66 |
+| Trabajo                        | Evidencia                                                                                      |
+| ------------------------------ | ---------------------------------------------------------------------------------------------- |
+| 4/4 documentos leídos íntegros | PRD 980 líneas · ARCHITECTURE 1.319 · DATABASE 1.665 · WIREFRAMES 1.216                        |
+| Stack confirmado               | ARCH §5 y §87: Next.js + TypeScript + Tailwind + Supabase/PostgreSQL + Vercel + GitHub         |
+| `DECISIONES.md`                | Las 7 decisiones de CLAUDE.md §5 pasan de PENDIENTE a **CONFIRMADA**, con su sección de origen |
+| `PANTALLAS.md`                 | Inventario con IDs originales (P01–P11, A01–A04, C01–C15, AD01–AD48) y estados transversales   |
+| `TRAZABILIDAD.md`              | 20 criterios `CA-xx` (PRD §65) + 10 reglas `RB-xxx` (PRD §59), con fase y tablas               |
+| `ROADMAP.md`                   | Fase 0 cerrada; reconciliado con el orden de construcción de ARCH §80                          |
+| MVP identificado               | PRD §60; fuera de alcance PRD §61; prioridades P0–P3 PRD §66                                   |
 
 ### Comandos ejecutados
 
-| Comando | Resultado |
-|---|---|
-| `find` por los 4 nombres de archivo | Encontrados en `Downloads`, copiados a `docs/` |
-| `file -b docs/*.md` | UTF-8 válido en los cuatro |
-| `grep -ci "jaba"` en los 4 documentos | **0 en los cuatro** → resuelve CONF-01 |
-| `grep -oh "Preicf[eé]s"` | 9 «Preicfes» sin tilde, 0 con tilde → abre CONF-02 |
-| `sed -n` sobre PRD §9 y §21 | Programas y materias reales confirmados |
+| Comando                               | Resultado                                          |
+| ------------------------------------- | -------------------------------------------------- |
+| `find` por los 4 nombres de archivo   | Encontrados en `Downloads`, copiados a `docs/`     |
+| `file -b docs/*.md`                   | UTF-8 válido en los cuatro                         |
+| `grep -ci "jaba"` en los 4 documentos | **0 en los cuatro** → resuelve CONF-01             |
+| `grep -oh "Preicf[eé]s"`              | 9 «Preicfes» sin tilde, 0 con tilde → abre CONF-02 |
+| `sed -n` sobre PRD §9 y §21           | Programas y materias reales confirmados            |
 
 ### Contradicciones
 
@@ -65,28 +104,28 @@ razón social, contenido institucional real y autorización del material.
 
 ### Fase 1 — ejecutada y verificada
 
-| Trabajo | Evidencia |
-|---|---|
-| Proyecto Next.js creado | Next.js **16.3.4**, React **19.2.8**, Tailwind **4**, TypeScript 5. 364 paquetes, **0 vulnerabilidades** |
-| Estructura ARCH §51 | `src/{app,components,features,lib,services,types,hooks,validations,config}` + 12 módulos en `features/` |
-| Migraciones | `supabase/migrations/` creado y vacío, con su README y el checklist de DB §88 |
-| Tokens de marca | Portados a Tailwind 4 (`@theme` en `src/app/globals.css`) desde el prototipo |
-| Tipografía | Inter vía `next/font` — sin peticiones a terceros en render |
-| `.env.example` | Solo nombres y valores ficticios; advertencia explícita sobre `SUPABASE_SERVICE_ROLE_KEY` |
-| `.gitignore` | `.env*` ignorado **con excepción** `!.env.example` |
-| Git | `git init -b main` (ARCH §84). **Sin commit**: pendiente de autorización del propietario |
-| Logotipo | Monograma PB recortado del activo real → `public/logo-bertel-marca.png` (el wordmark completo era ilegible a 56 px) |
+| Trabajo                 | Evidencia                                                                                                           |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Proyecto Next.js creado | Next.js **16.3.4**, React **19.2.8**, Tailwind **4**, TypeScript 5. 364 paquetes, **0 vulnerabilidades**            |
+| Estructura ARCH §51     | `src/{app,components,features,lib,services,types,hooks,validations,config}` + 12 módulos en `features/`             |
+| Migraciones             | `supabase/migrations/` creado y vacío, con su README y el checklist de DB §88                                       |
+| Tokens de marca         | Portados a Tailwind 4 (`@theme` en `src/app/globals.css`) desde el prototipo                                        |
+| Tipografía              | Inter vía `next/font` — sin peticiones a terceros en render                                                         |
+| `.env.example`          | Solo nombres y valores ficticios; advertencia explícita sobre `SUPABASE_SERVICE_ROLE_KEY`                           |
+| `.gitignore`            | `.env*` ignorado **con excepción** `!.env.example`                                                                  |
+| Git                     | `git init -b main` (ARCH §84). **Sin commit**: pendiente de autorización del propietario                            |
+| Logotipo                | Monograma PB recortado del activo real → `public/logo-bertel-marca.png` (el wordmark completo era ilegible a 56 px) |
 
 **Comandos ejecutados y su resultado:**
 
-| Comando | Resultado |
-|---|---|
+| Comando                      | Resultado                                                                                                         |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
 | `npx create-next-app@latest` | Falló con la carpeta `PLATAFORMA` (npm no admite mayúsculas). Se generó aparte con `--skip-install` y se trasladó |
-| `npm install` | 364 paquetes, 0 vulnerabilidades, 2 min |
-| `npm run build` | ✅ «Compiled successfully», TypeScript sin errores, 2 rutas estáticas |
-| `npm run lint` | ✅ sin problemas (tras excluir `prototipo/`) |
-| `npm run start` + `curl` | ✅ HTTP 200 |
-| Captura headless 1280×900 | ✅ `docs/capturas/11-fase1-app-arranca.png` |
+| `npm install`                | 364 paquetes, 0 vulnerabilidades, 2 min                                                                           |
+| `npm run build`              | ✅ «Compiled successfully», TypeScript sin errores, 2 rutas estáticas                                             |
+| `npm run lint`               | ✅ sin problemas (tras excluir `prototipo/`)                                                                      |
+| `npm run start` + `curl`     | ✅ HTTP 200                                                                                                       |
+| Captura headless 1280×900    | ✅ `docs/capturas/11-fase1-app-arranca.png`                                                                       |
 
 **Incidencias resueltas durante la Fase 1:**
 
@@ -110,7 +149,6 @@ rechazo **desde el servidor**, y el esquema se reproduce en una base de desarrol
 
 ---
 
-
 ## Sesión 2026-09-05 (b) — Dirección de arte y prototipo visual
 
 **Fecha:** 2026-09-05 · **Rama / commit:** no aplica (sigue sin repositorio Git)
@@ -127,26 +165,26 @@ que fije DOC-02. Ver `DISENO.md` §3 y las decisiones DEC-L06 a DEC-L10.
 
 ### Trabajo completado (con evidencia)
 
-| Trabajo | Evidencia |
-|---|---|
+| Trabajo                           | Evidencia                                                                                                                                                      |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Identidad de marca **verificada** | Azul `#1D3564`, oro `#E6B332`, Inter y el logotipo PB extraídos de los dashboards del propietario, que declaran «Paleta corporativa integrada». `DISENO.md` §1 |
-| Logotipo real recuperado | PNG en base64 incrustado en el dashboard 9-B, extraído y con fondo retirado → `prototipo/assets/logo-bertel.png` |
-| Sistema de tokens | `prototipo/css/tokens.css`: color, tipografía fluida, espaciado, radios, sombras, movimiento, profundidad |
-| Sitio público | `prototipo/index.html`: cabecera, hero con paneles 3D, escena de scroll de 4 etapas, programas, resultados, identidad, cierre y pie |
-| Escena de scrollytelling | `prototipo/js/escena.js`: scroll nativo, reversible, sin secuestro de rueda, mensajes en HTML semántico |
-| Portal académico | 5 pantallas: ingreso, panel, simulacro, resultados y administración |
-| Verificación | `node --check` OK; referencias locales OK; sin desbordes de 489 a 1407 px; movimiento reducido con 4/4 mensajes; 4 etapas de coreografía fotografiadas |
-| Capturas | `docs/capturas/` (10 imágenes) |
+| Logotipo real recuperado          | PNG en base64 incrustado en el dashboard 9-B, extraído y con fondo retirado → `prototipo/assets/logo-bertel.png`                                               |
+| Sistema de tokens                 | `prototipo/css/tokens.css`: color, tipografía fluida, espaciado, radios, sombras, movimiento, profundidad                                                      |
+| Sitio público                     | `prototipo/index.html`: cabecera, hero con paneles 3D, escena de scroll de 4 etapas, programas, resultados, identidad, cierre y pie                            |
+| Escena de scrollytelling          | `prototipo/js/escena.js`: scroll nativo, reversible, sin secuestro de rueda, mensajes en HTML semántico                                                        |
+| Portal académico                  | 5 pantallas: ingreso, panel, simulacro, resultados y administración                                                                                            |
+| Verificación                      | `node --check` OK; referencias locales OK; sin desbordes de 489 a 1407 px; movimiento reducido con 4/4 mensajes; 4 etapas de coreografía fotografiadas         |
+| Capturas                          | `docs/capturas/` (10 imágenes)                                                                                                                                 |
 
 ### Comandos realmente ejecutados
 
-| Comando | Resultado |
-|---|---|
-| `node --check js/escena.js` | Sintaxis correcta |
-| `python -m http.server 8765` | Servidor local, HTTP 200 |
-| Chrome headless `--screenshot` a 1440×900, 560 y 390 | 19 capturas; 10 conservadas |
+| Comando                                                         | Resultado                                                                    |
+| --------------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `node --check js/escena.js`                                     | Sintaxis correcta                                                            |
+| `python -m http.server 8765`                                    | Servidor local, HTTP 200                                                     |
+| Chrome headless `--screenshot` a 1440×900, 560 y 390            | 19 capturas; 10 conservadas                                                  |
 | Chrome headless `--force-prefers-reduced-motion` + `--dump-dom` | `reduce=true`, escenario `static`, 1 columna, rama estática, 4 pasos activos |
-| Auditoría DOM de desbordes a 400/560/760/1024/1440 | «SIN DESBORDES» en los cinco anchos |
+| Auditoría DOM de desbordes a 400/560/760/1024/1440              | «SIN DESBORDES» en los cinco anchos                                          |
 
 ### Defectos encontrados y corregidos
 
@@ -205,26 +243,26 @@ No existía trabajo previo que conservar ni cambios del usuario que respetar.
 
 ### Trabajo completado (con evidencia)
 
-| Trabajo | Evidencia |
-|---|---|
-| Inspección del proyecto | Listado del directorio incluidos ocultos: vacío. Sin repositorio Git. |
-| Búsqueda de DOC-01…DOC-04 | Escritorio, Documentos, Descargas, perfil de usuario (5 niveles, por palabra clave), OneDrive y Google Drive. **0 de 4 encontrados.** Detalle en `FUENTES.md` §2. |
-| Descarte de falsos positivos | Los resultados de Drive `Wireframe.js`, `WireframeGeometry.js`, `Wireframe.d.ts` son código de la librería three.js, no wireframes de diseño. |
-| Identificación de material relacionado | 9 grupos de archivos de Preicfes Bertel en `Downloads` y `Desktop`, catalogados en `FUENTES.md` §3 **sin autorizarlos como contenido**. |
-| Detección de contradicción CONF-01 | Extracción de texto de `PROPUESTA   PARA MUNICIPIOS.docx`: la misión y el NIT corresponden a «INTEGRAL DE ASESORIAS Y SERVICIOS JABA S.A.S», mientras CLAUDE.md §1 habla de «Preicfes Bertel». |
-| `CLAUDE.md` en la raíz | Creado con el texto entregado. Solo se reconstruyó el formato de tablas (DEC-L02); no se alteró ninguna palabra. |
-| Seis documentos de Fase 0 | `FUENTES.md`, `DECISIONES.md`, `PANTALLAS.md`, `TRAZABILIDAD.md`, `ROADMAP.md`, `ESTADO.md`. |
+| Trabajo                                | Evidencia                                                                                                                                                                                      |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inspección del proyecto                | Listado del directorio incluidos ocultos: vacío. Sin repositorio Git.                                                                                                                          |
+| Búsqueda de DOC-01…DOC-04              | Escritorio, Documentos, Descargas, perfil de usuario (5 niveles, por palabra clave), OneDrive y Google Drive. **0 de 4 encontrados.** Detalle en `FUENTES.md` §2.                              |
+| Descarte de falsos positivos           | Los resultados de Drive `Wireframe.js`, `WireframeGeometry.js`, `Wireframe.d.ts` son código de la librería three.js, no wireframes de diseño.                                                  |
+| Identificación de material relacionado | 9 grupos de archivos de Preicfes Bertel en `Downloads` y `Desktop`, catalogados en `FUENTES.md` §3 **sin autorizarlos como contenido**.                                                        |
+| Detección de contradicción CONF-01     | Extracción de texto de `PROPUESTA   PARA MUNICIPIOS.docx`: la misión y el NIT corresponden a «INTEGRAL DE ASESORIAS Y SERVICIOS JABA S.A.S», mientras CLAUDE.md §1 habla de «Preicfes Bertel». |
+| `CLAUDE.md` en la raíz                 | Creado con el texto entregado. Solo se reconstruyó el formato de tablas (DEC-L02); no se alteró ninguna palabra.                                                                               |
+| Seis documentos de Fase 0              | `FUENTES.md`, `DECISIONES.md`, `PANTALLAS.md`, `TRAZABILIDAD.md`, `ROADMAP.md`, `ESTADO.md`.                                                                                                   |
 
 ### Comandos realmente ejecutados
 
-| Comando | Resultado |
-|---|---|
-| Listado del directorio del proyecto (incl. ocultos) | Vacío |
-| `find` sobre Desktop/Documents/Downloads por extensión de documento | Sin coincidencias con las fuentes |
-| `find` sobre el perfil de usuario por palabras clave (`PRD`, `wireframe`, `bertel`, `icfes`, `arquitectura`, `plataforma`) | Solo material educativo y personal previo |
-| Búsqueda en Google Drive por título + archivos recientes | Sin coincidencias |
-| Extracción de texto de 3 `.docx` vía `zipfile` + limpieza de etiquetas XML | 1 legible (~26.000 caracteres), 2 ilegibles por extracción |
-| `python --version` | Python 3.11.15. `python-docx` y `pypdf` **no** instalados (no se instaló nada) |
+| Comando                                                                                                                    | Resultado                                                                      |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Listado del directorio del proyecto (incl. ocultos)                                                                        | Vacío                                                                          |
+| `find` sobre Desktop/Documents/Downloads por extensión de documento                                                        | Sin coincidencias con las fuentes                                              |
+| `find` sobre el perfil de usuario por palabras clave (`PRD`, `wireframe`, `bertel`, `icfes`, `arquitectura`, `plataforma`) | Solo material educativo y personal previo                                      |
+| Búsqueda en Google Drive por título + archivos recientes                                                                   | Sin coincidencias                                                              |
+| Extracción de texto de 3 `.docx` vía `zipfile` + limpieza de etiquetas XML                                                 | 1 legible (~26.000 caracteres), 2 ilegibles por extracción                     |
+| `python --version`                                                                                                         | Python 3.11.15. `python-docx` y `pypdf` **no** instalados (no se instaló nada) |
 
 ### Decisiones nuevas
 
