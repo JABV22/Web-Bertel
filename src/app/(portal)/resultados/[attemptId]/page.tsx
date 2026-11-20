@@ -11,6 +11,36 @@ export default async function AttemptResultPage({
   const result = await getAttemptResult(attemptId);
   if (!result) notFound();
 
+  if (result.status === "enviado") {
+    return (
+      <main id="principal" className="contenido">
+        <Link
+          className="mb-6 inline-block text-sm font-semibold text-bertel-azul hover:underline"
+          href="/resultados"
+        >
+          Volver a resultados
+        </Link>
+        <header className="mb-8 border-b border-borde pb-5">
+          <p className="text-sm text-gris-texto">Entrega recibida</p>
+          <h1 className="mt-2 text-2xl font-bold text-texto-fuerte">
+            {result.title}
+          </h1>
+        </header>
+        <p role="status" className="max-w-2xl text-sm leading-6 text-gris-texto">
+          Tus respuestas quedaron registradas. El puntaje estimado de práctica
+          estará disponible cuando la plataforma termine de calificar este
+          intento; no es un resultado oficial del ICFES.
+        </p>
+        <Link
+          className="btn mt-6 inline-flex"
+          href="/simulacro"
+        >
+          Iniciar otro intento
+        </Link>
+      </main>
+    );
+  }
+
   return (
     <main id="principal" className="contenido">
       <Link
@@ -21,13 +51,16 @@ export default async function AttemptResultPage({
       </Link>
       <header className="mb-8 border-b border-borde pb-5">
         <p className="text-sm text-gris-texto">
-          Resultado · porcentaje de aciertos
+          Resultado · puntaje estimado
         </p>
         <h1 className="mt-2 text-2xl font-bold text-texto-fuerte">
           {result.title}
         </h1>
         <p className="mt-3 text-3xl font-bold tabular-nums text-bertel-azul">
-          {Number(result.score).toFixed(2)}%
+          {Number(result.score).toFixed(0)} / 500
+        </p>
+        <p className="mt-2 text-sm text-gris-texto">
+          Puntaje estimado de práctica; no es un resultado oficial del ICFES.
         </p>
       </header>
       <dl className="grid gap-4 border-b border-borde pb-6 sm:grid-cols-3">

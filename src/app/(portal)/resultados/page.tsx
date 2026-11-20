@@ -13,7 +13,8 @@ export default async function ResultadosPage() {
       <header className="mb-8">
         <h1 className="text-2xl font-bold text-texto-fuerte">Resultados</h1>
         <p className="mt-2 text-sm text-gris-texto">
-          Puntajes porcentuales calculados a partir de las respuestas guardadas.
+          Puntajes estimados de 0 a 500; no corresponden a resultados oficiales
+          del ICFES.
         </p>
       </header>
       {results.length === 0 ? (
@@ -38,7 +39,7 @@ export default async function ResultadosPage() {
               </div>
               <div className="flex items-center gap-5">
                 <strong className="text-lg tabular-nums text-texto-fuerte">
-                  {Number(result.score).toFixed(2)}%
+                  {Number(result.score).toFixed(0)} / 500
                 </strong>
                 <Link
                   className="text-sm font-semibold text-bertel-azul hover:underline"

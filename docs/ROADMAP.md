@@ -1,6 +1,6 @@
 # ROADMAP — Plan de ejecución
 
-**Última actualización:** 2026-09-05 · **Fase activa:** 2 — Datos, autenticación y autorización
+**Última actualización:** 2026-11-18 · **Fase activa:** 2 — Datos, autenticación y autorización
 
 > Sin estimaciones en días (CLAUDE.md §8). Las casillas se marcan **después de verificar
 > comportamiento**, no por haber escrito código.
@@ -11,7 +11,7 @@
 |---|---|---|---|
 | **0** | Cotejo y plan ejecutable | ✅ **CERRADA** | 4/4 documentos leídos; decisiones confirmadas; MVP identificado |
 | **1** | Base técnica y entorno | ✅ **CERRADA** | Next.js 16 + TS + Tailwind 4 + Git `main`. Build, lint y arranque verificados |
-| **2** | Datos, autenticación y autorización | 🟡 **SIGUIENTE** | **Bloqueada por credenciales de Supabase** |
+| **2** | Datos, autenticación y autorización | 🟡 **EN CURSO** | Aplicación conectada al modelo DOC-05; migraciones aún no validadas ni aplicadas |
 | **3** | Sitio público y contenidos administrables | 🟡 Parcial | Sistema visual listo en `prototipo/`; falta portarlo y 6 de 11 páginas |
 | **4** | Banco de preguntas y construcción de pruebas | 🔴 Bloqueada | Requiere Fases 1–2 |
 | **5** | Resolución de simulacros | 🔴 Bloqueada | Requiere Fase 4 |
@@ -78,24 +78,31 @@ Captura: `docs/capturas/11-fase1-app-arranca.png`.
 
 No se crearon recursos de pago. No se tocó Supabase ni Vercel.
 
-## Fase 2 — siguiente
+## Fase 2 — en curso
 
-**Trabajo:** migraciones de DATABASE.md (44 tablas, esquemas `public`/`private`), RLS, datos
-sintéticos, Supabase Auth, sesiones, matriz de permisos por rol y alta controlada del primer
-administrador.
+**Trabajo:** cotejar el esquema DOC-05 (24 tablas, 109 columnas), RLS, datos sintéticos, Supabase
+Auth, sesiones, matriz de permisos por rol y alta controlada del primer administrador.
 
-**Bloqueo real:** requiere un proyecto de Supabase y sus credenciales en `.env.local`. Sin ellas se
-pueden **escribir** las migraciones, pero no aplicarlas ni verificar RLS — y CLAUDE.md §9 exige
-verificación, no solo código escrito.
+**Criterio de salida:** esquema remoto cotejado; migraciones aplicadas en desarrollo; autenticación y
+aislamiento comprobados con perfiles de estudiante, docente y administrador.
+
+**Bloqueo real:** aún no se ha podido confirmar conexión a Supabase ni aplicar o probar
+migraciones. La metodología de puntaje ya fue definida por DOC-06 y está implementada en la
+migración 004, pero falta verificarla en una instancia de desarrollo.
+
+**Reconciliación de fuentes:** el DOC-05 recibido el 2026-11-18 prevalece sobre DOC-03 v1.0 para el
+esquema de 24 tablas y sustituye las decisiones de un solo intento y porcentaje del 2026-11-09.
+Ver `docs/DICCIONARIO_DATOS.md` y `docs/DECISIONES.md` §7.
 
 ## Bloqueos reales pendientes del propietario
 
 | # | Bloqueo | Qué impide | Cómo se resuelve |
 |---|---|---|---|
-| 1 | **Credenciales de Supabase** | Fase 2 en adelante | Crear proyecto en Supabase y poner `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY` en `.env.local`. **Nunca por chat** |
+| 1 | **Acceso de administración a Supabase** | Aplicar migraciones y verificar RLS | Confirmar un proyecto de desarrollo/staging y configurar la conexión de forma local; nunca compartir claves por chat |
 | 2 | **CONF-02** — grafía «Preicfes» / «Preicfés» | Wordmark y textos legales | Confirmar cuál es la correcta |
 | 3 | **Razón social** | Privacidad y Términos (P10, P11) | Indicar la entidad legal |
 | 4 | **Contenido institucional real** | P02, P06, P07 | Historia, misión, visión, valores, equipo, cifras verificadas |
 | 5 | **Autorización del material** | Fase 3 y 4 | Confirmar si portafolios, simulacros y claves pueden usarse |
+| 6 | **Validación del puntaje estimado** | Verificación de Fase 6 | Probar en Supabase el ejemplo de DOC-06 y casos de prueba parcial, sin respuestas y con áreas mal configuradas |
 
 El bloqueo 1 impide cerrar la Fase 2. Los demás no impiden escribir las migraciones.

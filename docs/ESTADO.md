@@ -1,5 +1,90 @@
 # ESTADO — Registro de sesión
 
+## Sesión 2026-11-18 — Incorporación del diccionario de datos
+
+**Fecha:** 2026-11-18 · **Rama:** `kent-development` · **Commit base:** `ffb44ff`
+
+**Fase activa:** 2 — Datos, autenticación y autorización. **Estado:** cambios locales
+implementados y compilados; validación y aplicación en Supabase pendientes.
+
+### Trabajo realizado
+
+- Se leyó visualmente el PDF `Diccionario_de_Datos_PreICFES_Bertel.pdf` completo (9 páginas,
+  24 tablas, 109 columnas). Se registró su ruta, hash, resumen y precedencia en
+  `docs/FUENTES.md`, `docs/DICCIONARIO_DATOS.md` y `docs/DECISIONES.md`.
+- El propietario confirmó intentos múltiples sin máximo y una escala estimada de 0–500.
+- Al cierre de esta sesión, la fórmula de puntaje no aparecía en el diccionario; por eso no se
+  calculaba ni mostraba una nota. El bloqueo se resolvió el 2026-11-19 con DOC-06.
+- Se identificó que `001_exam_authorization.sql` y `002_admin_assessment_access.sql` asumen que el
+  esquema base ya existe y, actualmente, bloquean un segundo intento y calculan un porcentaje.
+- Se añadió `003_multiple_attempts_pending_scoring.sql`: reanuda intentos vigentes, cierra los
+  vencidos como `enviado`, permite iniciar otro intento y deja la calificación pendiente.
+- El portal muestra la entrega recibida y no presenta como puntaje 0–500 notas porcentuales
+  heredadas. Se corrigió además el acceso al nombre de curso, que llega como una relación múltiple.
+
+### Verificación y límites
+
+- Fuente inspeccionada: 9/9 páginas; SHA-256 registrado en `docs/FUENTES.md`.
+- `pnpm lint`: correcto.
+- `pnpm build`: correcto; 11 rutas generadas y TypeScript sin errores.
+- `git diff --check`: correcto.
+- Migraciones remotas: **no verificadas ni aplicadas**; no hay conexión administrativa confirmada
+  a Supabase.
+- No se han probado RLS, concurrencia ni permisos en una instancia de desarrollo.
+- La máquina no tiene `psql` ni CLI de Supabase disponible; `.env.local` solo tiene los nombres de
+  las dos variables públicas de Supabase, no una credencial administrativa.
+- La Fase 2 no se considera cerrada.
+
+### Próxima acción
+
+Siguiente paso definido en ese momento: recibir la fórmula estimada 0–500 y habilitar un proyecto
+Supabase de desarrollo. DOC-06 resolvió la fórmula el 2026-11-19; queda pendiente la instancia de
+desarrollo para cotejar el esquema y validar las migraciones 001–004.
+
+---
+
+## Sesión 2026-11-19 — Listado de evaluaciones y metodología de puntaje
+
+**Fase activa:** 2 — Datos, autenticación y autorización. **Estado:** cambios de aplicación y
+migración implementados; aún no aplicados ni validados contra Supabase.
+
+### Trabajo realizado
+
+- Admin y docente consultan todas las evaluaciones de `assessments`, sin filtrar por estado; los
+  estudiantes solo reciben evaluaciones publicadas.
+- `/administracion` reemplaza las evaluaciones ficticias por las filas reales de `assessments`.
+  `/simulacro` y el panel muestran también borradores/cerradas al personal autorizado y deshabilitan
+  su inicio.
+- Se leyó el DOC-06 de 3 páginas y se documentó su fórmula en `docs/CALIFICACION.md`.
+- La migración 004 implementa el puntaje por área 0–100, ponderación configurable, normalización
+  dinámica en pruebas parciales y redondeo final del estimado 0–500.
+- Las entregas históricas en estado `enviado` se recalifican al consultar el resultado, si quien
+  consulta es propietario o administrador y la migración 004 ya está aplicada.
+- Los resultados presentan la escala como estimación de práctica, no como puntaje oficial del ICFES.
+
+### Verificación y límites
+
+- DOC-06: 3/3 páginas; SHA-256 registrado en `docs/FUENTES.md`.
+- `pnpm lint`: correcto.
+- `pnpm build`: correcto; TypeScript y 11 rutas generadas.
+- `git diff --check`: correcto.
+- Comprobación independiente de la fórmula: el ejemplo completo da 358 y un caso parcial de
+  Matemáticas 70/Lectura 80 da 375.
+- La migración SQL no se ha aplicado; no hay conexión confirmada a Supabase de desarrollo.
+- La herramienta de base de datos no encontró una conexión configurada; las 4 filas reales no se
+  pudieron consultar desde esta sesión.
+- La metodología espera que cada pregunta pertenezca a una sección/área; si faltan secciones,
+  pesos reconocidos o claves válidas, la transacción falla sin producir una nota incorrecta.
+- El modelo actual no guarda el desglose por área como parte de los resultados.
+
+### Próxima acción
+
+Configurar acceso al proyecto Supabase de desarrollo, cotejar el esquema y aplicar allí las
+migraciones 001–004. Luego comprobar las evaluaciones según rol y verificar la calificación en la
+base real, incluyendo intentos parciales y los que quedaron en `enviado`.
+
+---
+
 ## Sesión 2026-11-09 — Integración inicial de evaluaciones y roles
 
 **Fase activa:** 2 — Datos, autenticación y autorización. **Estado:** código implementado; migración

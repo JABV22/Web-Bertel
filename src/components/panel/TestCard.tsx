@@ -4,6 +4,7 @@ import type { TestCardData } from "./mockData";
 const STATUS_STYLES: Record<TestCardData["status"], string> = {
   available: "bg-bertel-oro-100 text-[#6B4E0A]",
   "in-progress": "bg-superficie-alt text-gris-texto",
+  submitted: "bg-superficie-alt text-gris-texto",
   completed: "bg-exito/10 text-exito",
   unavailable: "bg-superficie-alt text-gris-texto",
 };

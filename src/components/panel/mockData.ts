@@ -1,4 +1,9 @@
-export type TestStatus = "available" | "in-progress" | "completed" | "unavailable";
+export type TestStatus =
+  | "available"
+  | "in-progress"
+  | "submitted"
+  | "completed"
+  | "unavailable";
 
 export type PanelSummary = {
   label: string;
@@ -82,4 +87,4 @@ export const PANEL_TESTS: TestCardData[] = [
 ];
 
 export const PANEL_NOTICE =
-  "Las cifras aparecen vacías a propósito: la fórmula de calificación y las reglas de disponibilidad se definen en el PRD, que todavía no está disponible.";
+  "Los puntajes son estimaciones de práctica con la metodología de la plataforma; no son resultados oficiales del ICFES.";

@@ -1,6 +1,6 @@
 # DECISIONES — Matriz técnica
 
-**Última actualización:** 2026-09-05 · **Fase:** 0 — cerrada
+**Última actualización:** 2026-11-18 · **Fase:** 2 — en curso
 
 > Las siete decisiones de CLAUDE.md §5 quedan **CONFIRMADAS** por ARCHITECTURE.md (DOC-02).
 > Nada de esta matriz fue elegido por Claude: cada fila cita la sección que la fija.
@@ -98,8 +98,8 @@ en `DATABASE.md` v1.0. El documento original se conserva sin reescritura.
 | Roles de la imagen    | `admin`, `profesor`, `estudiante`, relacionados mediante `user_roles` y `roles`.                                                 | CONFIRMADA |
 | Acceso a evaluaciones | Toda cuenta activa con rol `estudiante` puede iniciar cualquier evaluación `published`; no se agrega asignación por grupo/curso. | CONFIRMADA |
 | Alcance docente       | Resultados y revisiones solo de estudiantes matriculados en cursos asignados mediante `course_teachers`.                         | CONFIRMADA |
-| Calificación          | Igual peso por pregunta; porcentaje de aciertos con dos decimales; no convertir a escala 0–500.                                  | CONFIRMADA |
-| Reintentos            | Un intento por estudiante y evaluación hasta que el propietario defina un límite configurable; el esquema no contiene `attempts_allowed`. | PROPUESTA CONSERVADORA |
+| Calificación          | **Supersedida el 2026-11-18** por la escala estimada 0–500; fórmula confirmada por DOC-06 el 2026-11-19.                           | SUPERSEDIDA |
+| Reintentos            | **Supersedida el 2026-11-18** por intentos múltiples sin máximo definido.                                                          | SUPERSEDIDA |
 
 El esquema adjunto no implementa versionado de preguntas/evaluaciones ni modelos de calificación.
 Por ello, la migración bloquea la clave de respuestas al cliente y califica con las respuestas y
@@ -109,3 +109,52 @@ intentos. Antes de operar contenido real, las evaluaciones publicadas deben trat
 La migración `supabase/migrations/001_exam_authorization.sql` es aditiva y asume que las tablas del
 esquema adjunto ya existen. No es un esquema inicial reproducible desde una base vacía, no se ha
 aplicado a Supabase y requiere validación en un entorno de pruebas antes de producción.
+
+## 7. Decisiones confirmadas por el propietario — 2026-11-18
+
+El propietario indicó que el nuevo [diccionario de datos](./DICCIONARIO_DATOS.md) prevalece para
+las reglas que sí documenta. DOC-03 v1.0 se conserva sin reescritura. Las decisiones del 2026-11-09
+que no contradicen el nuevo esquema siguen vigentes.
+
+| Tema | Decisión | Estado | Fuente |
+|---|---|---|---|
+| Esquema vigente | Usar el modelo de 24 tablas y 109 columnas del diccionario Pre-ICFES/Supabase. | CONFIRMADA | DOC-05, pp. 1–9 |
+| Intentos | Permitir varios intentos por estudiante y evaluación, sin imponer un máximo no definido. | CONFIRMADA | DOC-05, p. 9 + confirmación del propietario |
+| Resultado | Escala estimada 0–500; nunca llamarla puntaje oficial ICFES. | CONFIRMADA | DOC-05, pp. 8–9 + confirmación del propietario |
+| Fórmula | Puntaje por área = correctas/total × 100; global = media ponderada de las áreas × 5, normalizada por la suma de pesos evaluados y redondeada al entero más cercano. | CONFIRMADA | DOC-06, pp. 1–3 |
+| Esquema base | El PDF describe las tablas; la migración actual las presupone y no las crea. | PENDIENTE | DOC-05 + `supabase/migrations/001_exam_authorization.sql` |
+
+### Cambios realizados y pendientes de validación
+
+- La migración 003 permite múltiples intentos, reanuda el vigente y permite comenzar otro tras la
+  entrega o vencimiento.
+- La migración 004 califica en servidor con la fórmula estimada de DOC-06; la interfaz etiqueta el
+  resultado como estimado, no oficial.
+- Las claves de respuesta continúan bloqueadas antes del cierre/revisión autorizada.
+- La aplicación y validación de migraciones siguen pendientes de una instancia Supabase de
+  desarrollo.
+
+## 8. Metodología de calificación confirmada — 2026-11-19
+
+El propietario entregó DOC-06. Su método sustituye el estado PENDIENTE de la fórmula en §7:
+
+| Área | Peso relativo |
+|---|---:|
+| Matemáticas | 3 |
+| Lectura Crítica | 3 |
+| Ciencias Naturales | 3 |
+| Sociales y Ciudadanas | 3 |
+| Inglés | 1 |
+
+- Puntaje de cada área: `correctas / preguntas del área * 100`.
+- Puntaje global estimado: `round((sum(puntaje_area * peso_area) / sum(pesos de áreas evaluadas)) * 5)`.
+- Se conservan decimales intermedios y se redondea únicamente el resultado final.
+- Se excluyen del denominador dinámico las áreas que no formen parte de una evaluación parcial.
+- Los pesos opcionales del modelo se toman de `assessment_sections.weight`; si están ausentes, se
+  aplican los pesos relativos documentados según el nombre del área.
+- El ejemplo del documento (70, 80, 65, 75, 60) produce **358 puntos estimados**.
+- El examen oficial usa IRT; la fórmula implementada es de práctica y no certifica ni representa un
+  puntaje oficial.
+
+Implementación: `supabase/migrations/004_estimated_icfes_scoring.sql`. Ver también
+[`CALIFICACION.md`](./CALIFICACION.md).

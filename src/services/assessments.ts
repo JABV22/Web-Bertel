@@ -1,13 +1,21 @@
 import { requireRole } from "@/services/auth";
 
 export async function getAvailableAssessments() {
-  const { supabase } = await requireRole(["estudiante", "profesor", "admin"]);
-  const { data, error } = await supabase
+  const { supabase, roles } = await requireRole([
+    "estudiante",
+    "profesor",
+    "admin",
+  ]);
+  let query = supabase
     .from("assessments")
-    .select("id, title, description, duration_minutes, created_at, assessment_questions(question_id)")
-    .eq("status", "published")
+    .select("id, title, description, duration_minutes, status, created_at, assessment_questions(question_id)")
     .order("created_at", { ascending: false });
 
+  if (!roles.includes("admin") && !roles.includes("profesor")) {
+    query = query.eq("status", "published");
+  }
+
+  const { data, error } = await query;
   if (error) throw new Error("No fue posible cargar las evaluaciones disponibles.");
 
   return (data ?? []).map((assessment) => ({
@@ -15,11 +23,117 @@ export async function getAvailableAssessments() {
     title: assessment.title,
     description: assessment.description,
     durationMinutes: assessment.duration_minutes,
+    status: assessment.status,
+    canStart: roles.includes("admin") || roles.includes("estudiante"),
     questionCount: new Set(
       (assessment.assessment_questions ?? []).map((item) => item.question_id),
     ).size,
   }));
 }
+
+export async function getPanelAssessments() {
+  const { supabase, user, roles } = await requireRole([
+    "estudiante",
+    "profesor",
+    "admin",
+  ]);
+
+  let assessmentsQuery = supabase
+    .from("assessments")
+    .select(
+      "id, title, description, duration_minutes, status, created_at, assessment_questions(question_id)",
+    )
+    .order("created_at", { ascending: false });
+
+  if (!roles.includes("admin") && !roles.includes("profesor")) {
+    assessmentsQuery = assessmentsQuery.eq("status", "published");
+  }
+
+  const { data: assessments, error: assessmentsError } = await assessmentsQuery;
+
+  if (assessmentsError) {
+    throw new Error("No fue posible cargar las evaluaciones del panel.");
+  }
+
+  const assessmentIds = (assessments ?? []).map((assessment) => assessment.id);
+
+  const { data: attempts, error: attemptsError } =
+    assessmentIds.length > 0
+      ? await supabase
+          .from("assessment_attempts")
+          .select("id, assessment_id, status, started_at, submitted_at")
+          .eq("student_id", user.id)
+          .in("assessment_id", assessmentIds)
+          .order("started_at", { ascending: false })
+      : { data: [], error: null };
+
+  if (attemptsError) {
+    throw new Error("No fue posible cargar los intentos del estudiante.");
+  }
+
+  // Los intentos vienen del más reciente al más antiguo.
+  const latestAttemptByAssessment = new Map<
+    string,
+    NonNullable<typeof attempts>[number]
+  >();
+
+  for (const attempt of attempts ?? []) {
+    if (!latestAttemptByAssessment.has(attempt.assessment_id)) {
+      latestAttemptByAssessment.set(attempt.assessment_id, attempt);
+    }
+  }
+
+  return (assessments ?? []).map((assessment) => {
+    const attempt = latestAttemptByAssessment.get(assessment.id) ?? null;
+
+    return {
+      id: assessment.id,
+      title: assessment.title,
+      description: assessment.description,
+      durationMinutes: assessment.duration_minutes,
+      assessmentStatus: assessment.status,
+      questionCount: new Set(
+        (assessment.assessment_questions ?? []).map(
+          (question) => question.question_id,
+        ),
+      ).size,
+      attemptId: attempt?.id ?? null,
+      attemptStatus: attempt?.status ?? null,
+      studentStatus:
+        attempt?.status === "en_progreso"
+          ? "in-progress"
+          : attempt?.status === "enviado"
+            ? "submitted"
+            : attempt?.status === "clasificado"
+            ? "completed"
+            : "available",
+    };
+  });
+}
+
+export async function getAdminAssessments() {
+  const { supabase } = await requireRole(["admin"]);
+  const { data, error } = await supabase
+    .from("assessments")
+    .select(
+      "id, title, description, duration_minutes, status, assessment_questions(question_id)",
+    )
+    .order("created_at", { ascending: false });
+
+  if (error) throw new Error("No fue posible cargar las evaluaciones.");
+
+  return (data ?? []).map((assessment) => ({
+    id: assessment.id,
+    title: assessment.title,
+    description: assessment.description,
+    durationMinutes: assessment.duration_minutes,
+    status: assessment.status,
+    questionCount: new Set(
+      (assessment.assessment_questions ?? []).map((item) => item.question_id),
+    ).size,
+  }));
+}
+
 
 export async function getAttempt(attemptId: string) {
   const { supabase, user, roles } = await requireRole(["estudiante", "profesor", "admin"]);
@@ -146,29 +260,89 @@ export async function getAssessmentResults() {
 }
 
 export async function getAttemptResult(attemptId: string) {
-  const { supabase } = await requireRole(["estudiante", "profesor", "admin"]);
-  const { data, error } = await supabase
-    .from("assessment_attempts")
-    .select(`
-      id,
-      student_id,
-      status,
-      submitted_at,
-      assessment:assessments!inner (
-        title
-      ),
-      result:assessment_results!inner (
-        total_score,
-        correct_count,
-        incorrect_count,
-        unanswered_count,
-        computed_at
-      )
-    `)
-    .eq("id", attemptId)
-    .single();
+  const { supabase, user, roles } = await requireRole([
+    "estudiante",
+    "profesor",
+    "admin",
+  ]);
+  const loadAttempt = () =>
+    supabase
+      .from("assessment_attempts")
+      .select(`
+        id,
+        student_id,
+        status,
+        submitted_at,
+        assessment:assessments!inner (
+          title
+        ),
+        result:assessment_results (
+          total_score,
+          correct_count,
+          incorrect_count,
+          unanswered_count,
+          computed_at
+        )
+      `)
+      .eq("id", attemptId)
+      .single();
 
-  if (error || !data) return null;
+  let { data, error } = await loadAttempt();
+  if (error?.code === "PGRST116") return null;
+  if (error) throw new Error("No fue posible cargar el resultado.");
+  if (!data) return null;
+
+  const parseAttempt = (attemptData: typeof data) => attemptData as unknown as {
+    id: string;
+    student_id: string;
+    status: string;
+    submitted_at: string | null;
+    assessment: { title: string };
+    result: {
+      total_score: number;
+      correct_count: number;
+      incorrect_count: number;
+      unanswered_count: number;
+      computed_at: string;
+    } | null;
+  };
+  let attempt = parseAttempt(data);
+
+  if (attempt.status === "enviado") {
+    if (attempt.student_id === user.id || roles.includes("admin")) {
+      const { error: scoringError } = await supabase.rpc(
+        "submit_assessment_attempt",
+        { p_attempt_id: attemptId },
+      );
+      if (scoringError) {
+        throw new Error("No fue posible calcular el puntaje de esta entrega.");
+      }
+
+      ({ data, error } = await loadAttempt());
+      if (error) throw new Error("No fue posible cargar el resultado actualizado.");
+      if (!data) return null;
+      attempt = parseAttempt(data);
+    }
+
+    if (attempt.status === "enviado") {
+    return {
+      id: attempt.id,
+      status: "enviado" as const,
+      submittedAt: attempt.submitted_at,
+      title: attempt.assessment.title,
+      score: null,
+      correct: null,
+      incorrect: null,
+      unanswered: null,
+      computedAt: null,
+      review: [],
+    };
+    }
+  }
+
+  if (attempt.status !== "clasificado" || !attempt.result) {
+    return null;
+  }
 
   const { data: review, error: reviewError } = await supabase.rpc("get_attempt_review", {
     p_attempt_id: attemptId,
@@ -179,28 +353,17 @@ export async function getAttemptResult(attemptId: string) {
     is_correct: boolean | null;
   }>;
 
-  const assessment = data.assessment as unknown as {
-    title: string;
-  };
-  const result = data.result as unknown as {
-    total_score: number;
-    correct_count: number;
-    incorrect_count: number;
-    unanswered_count: number;
-    computed_at: string;
-  };
-
   return {
-    id: data.id,
-    studentId: data.student_id,
-    status: data.status,
-    submittedAt: data.submitted_at,
-    title: assessment.title,
-    score: result.total_score,
-    correct: result.correct_count,
-    incorrect: result.incorrect_count,
-    unanswered: result.unanswered_count,
-    computedAt: result.computed_at,
+    id: attempt.id,
+    studentId: attempt.student_id,
+    status: "clasificado" as const,
+    submittedAt: attempt.submitted_at,
+    title: attempt.assessment.title,
+    score: attempt.result.total_score,
+    correct: attempt.result.correct_count,
+    incorrect: attempt.result.incorrect_count,
+    unanswered: attempt.result.unanswered_count,
+    computedAt: attempt.result.computed_at,
     review: reviewRows.map((answer) => ({
       questionId: answer.question_id,
       isCorrect: answer.is_correct,

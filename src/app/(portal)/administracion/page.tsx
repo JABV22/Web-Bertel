@@ -1,13 +1,13 @@
 import { AdministrationView } from "@/components/portal/AdministrationView";
 import { PortalTopbar } from "@/components/portal/PortalTopbar";
-import { requireRole } from "@/services/auth";
+import { getAdminAssessments } from "@/services/assessments";
 
 export const metadata = {
   title: "Administración",
 };
 
 export default async function AdministracionPage() {
-  await requireRole(["admin"]);
+  const assessments = await getAdminAssessments();
 
   return (
     <>
@@ -20,7 +20,7 @@ export default async function AdministracionPage() {
           </button>
         }
       />
-      <AdministrationView />
+      <AdministrationView assessments={assessments} />
     </>
   );
 }

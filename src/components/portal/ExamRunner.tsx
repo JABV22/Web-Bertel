@@ -17,7 +17,7 @@ type ExamQuestion = {
 type ExamRunnerProps = {
   attemptId: string;
   title: string;
-  expiresAt: string;
+  expiresAt: string | null;
   questions: ExamQuestion[];
 };
 
@@ -55,6 +55,8 @@ export function ExamRunner({
   const currentQuestion = questions[currentIndex];
 
   useEffect(() => {
+    if (!expiresAt) return;
+
     const updateRemaining = () => {
       setRemainingSeconds(
         Math.max(0, Math.ceil((Date.parse(expiresAt) - Date.now()) / 1000)),
@@ -66,7 +68,7 @@ export function ExamRunner({
   }, [expiresAt]);
 
   useEffect(() => {
-    if (remainingSeconds !== 0 || finishing.current) return;
+    if (!expiresAt || remainingSeconds !== 0 || finishing.current) return;
     finishing.current = true;
     setIsSubmitting(true);
     void submitAssessmentAction(attemptId)
@@ -84,7 +86,7 @@ export function ExamRunner({
         finishing.current = false;
         setIsSubmitting(false);
       });
-  }, [attemptId, remainingSeconds, router]);
+  }, [attemptId, expiresAt, remainingSeconds, router]);
 
   async function saveAnswer(questionId: string, selectedOptionId: string) {
     const previousAnswer = answers.get(questionId) ?? null;
@@ -165,7 +167,7 @@ export function ExamRunner({
           className="text-lg font-semibold tabular-nums text-texto-fuerte"
           aria-live="polite"
         >
-          Tiempo restante: {formatTime(remainingSeconds)}
+          Tiempo restante: {formatTime(expiresAt ? remainingSeconds : null)}
         </p>
       </header>
 
