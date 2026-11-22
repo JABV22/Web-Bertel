@@ -24,6 +24,7 @@ export async function getAvailableAssessments() {
     description: assessment.description,
     durationMinutes: assessment.duration_minutes,
     status: assessment.status,
+    canReview: roles.includes("profesor") || roles.includes("admin"),
     canStart: roles.includes("admin") || roles.includes("estudiante"),
     questionCount: new Set(
       (assessment.assessment_questions ?? []).map((item) => item.question_id),
@@ -163,6 +164,50 @@ async function loadQuestionImages(
 }
 
 
+const questionContent = `
+  id, statement,
+  question_options (id, option_text, position),
+  question_assets (id, asset_url, alt_text)
+`;
+
+export async function getAssessmentForReview(assessmentId: string) {
+  const { supabase } = await requireRole(["profesor", "admin"]);
+  if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(assessmentId)) return null;
+
+  const { data, error } = await supabase
+    .from("assessments")
+    .select(`id, title, assessment_questions (question_order, question:questions (${questionContent}))`)
+    .eq("id", assessmentId)
+    .maybeSingle();
+
+  if (error) throw new Error("No fue posible cargar la prueba para revisar.");
+  if (!data) return null;
+
+  const rows = (data.assessment_questions ?? []) as unknown as Array<{
+    question_order: number;
+    question: {
+      id: string;
+      statement: string;
+      question_options: Array<{ id: string; option_text: string; position: number }>;
+      question_assets: QuestionAsset[];
+    } | null;
+  }>;
+  const questions = await Promise.all(rows
+    .toSorted((a, b) => a.question_order - b.question_order)
+    .map(async ({ question, question_order }) => {
+      if (!question) return null;
+
+      return {
+        id: question.id,
+        order: question_order,
+        statement: question.statement,
+        assets: await loadQuestionImages(supabase, question.question_assets ?? []),
+        options: (question.question_options ?? []).toSorted((a, b) => a.position - b.position),
+      };
+    }));
+  return { id: data.id, title: data.title, questions: questions.filter((question) => question !== null) };
+}
+
 function loadSavedAnswers(supabase: Awaited<ReturnType<typeof requireRole>>["supabase"], attemptId: string) {
   return supabase.from("student_answers")
     .select("question_id, selected_option_id, is_correct")
@@ -185,12 +230,7 @@ export async function getAttempt(attemptId: string) {
         assessment_questions (
           question_id,
           question_order,
-          question:questions!inner (
-            id,
-            statement,
-            question_options (id, option_text, position),
-            question_assets (id, asset_url, alt_text)
-          )
+          question:questions!inner (${questionContent})
         )
       )
     `)
@@ -257,7 +297,7 @@ export async function getAttempt(attemptId: string) {
   };
 }
 
-export async function getAssessmentResults({ ownOnly = false } = {}) {
+export async function getAssessmentResults({ ownOnly = false, assessmentId }: { ownOnly?: boolean; assessmentId?: string } = {}) {
   const { supabase, user, roles } = await requireRole([
     "estudiante",
     "profesor",
@@ -285,6 +325,8 @@ export async function getAssessmentResults({ ownOnly = false } = {}) {
   if (ownOnly || (!roles.includes("admin") && !roles.includes("profesor"))) {
     query = query.eq("attempt.student_id", user.id);
   }
+
+  if (assessmentId) query = query.eq("attempt.assessment_id", assessmentId);
 
   const { data, error } = await query;
   if (error) throw new Error("No fue posible cargar los resultados.");
