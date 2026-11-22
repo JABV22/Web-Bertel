@@ -1,9 +1,11 @@
-import { ExamView } from "@/components/portal/ExamView";
+import { AssessmentList } from "@/components/portal/AssessmentList";
+import { getAvailableAssessments } from "@/services/assessments";
 
 export const metadata = {
   title: "Simulacro Saber 11",
 };
 
-export default function SimulacroPage() {
-  return <ExamView />;
+export default async function SimulacroPage() {
+  const assessments = await getAvailableAssessments();
+  return <AssessmentList assessments={assessments} />;
 }

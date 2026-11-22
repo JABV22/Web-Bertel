@@ -22,7 +22,7 @@ export function ResultsView() {
       </section>
 
       <DemoNotice>
-        No se muestra ninguna escala 0–500 ni se presenta el resultado como puntaje ICFES oficial. Cualquier escala interna requiere definición y metodología autorizadas.
+        El puntaje estimado de 0 a 500 es de práctica y no corresponde a un resultado oficial del ICFES.
       </DemoNotice>
 
       <div className="titulo-bloque" style={{ marginTop: "var(--e7)" }}><h2>Por componente</h2></div>

@@ -3,8 +3,9 @@
 Plataforma educativa de **Preicfés Bertel**: sitio institucional público, campus privado para
 estudiantes con simulacros Saber 11, y administración de contenidos, preguntas y pruebas.
 
-**Estado actual: Fase 1 — base técnica.** La aplicación arranca y compila, pero todavía no hay
-autenticación, base de datos ni interfaz de producto. Ver [docs/ESTADO.md](docs/ESTADO.md).
+**Estado actual: Fase 2 — datos, autenticación y autorización.** Hay flujos de autenticación y
+evaluaciones en desarrollo; las migraciones todavía no se han validado ni aplicado en Supabase.
+Ver [docs/ESTADO.md](docs/ESTADO.md).
 
 > **Nota para futuras sesiones de IA.** Next.js 16 introduce cambios de ruptura respecto a versiones
 > anteriores: APIs, convenciones y estructura de archivos pueden diferir de lo memorizado. Consulta
@@ -31,8 +32,8 @@ npm run dev
 
 La aplicación queda en <http://localhost:3000>.
 
-**`.env.local` no es obligatorio todavía.** Sin credenciales de Supabase la aplicación arranca igual;
-solo dejará de funcionar cuando la Fase 2 introduzca autenticación y datos.
+**`.env.local` es necesaria para probar autenticación y datos.** No la compartas ni subas al
+repositorio; usa `.env.example` como referencia y configura las credenciales locales directamente.
 
 ## Comandos reales
 
@@ -80,7 +81,8 @@ Sigue [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) §51.
 | [CLAUDE.md](CLAUDE.md) | Guía de ejecución del proyecto |
 | [docs/PRD.md](docs/PRD.md) | Producto, MVP, reglas de negocio y criterios de aceptación |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Stack, módulos, rutas y capas |
-| [docs/DATABASE.md](docs/DATABASE.md) | 44 tablas, RLS, versionado e inmutabilidad |
+| [docs/DATABASE.md](docs/DATABASE.md) | Modelo histórico de 44 tablas; sustituido para esta implementación |
+| [docs/DICCIONARIO_DATOS.md](docs/DICCIONARIO_DATOS.md) | Resumen del modelo vigente de 24 tablas; fuente PDF externa |
 | [docs/WIREFRAMES.md](docs/WIREFRAMES.md) | ~85 pantallas y reglas UX |
 | [docs/ESTADO.md](docs/ESTADO.md) | Dónde está el trabajo ahora mismo |
 | [docs/ROADMAP.md](docs/ROADMAP.md) | Fases y bloqueos |
@@ -96,12 +98,14 @@ De [docs/DATABASE.md](docs/DATABASE.md) §87 y [docs/ARCHITECTURE.md](docs/ARCHI
 - **Nunca** desactivar RLS para resolver un error.
 - `SUPABASE_SERVICE_ROLE_KEY` **solo** en servidor: nunca en el navegador, en Git ni en capturas.
 - Las claves de respuesta viven en el esquema `private` y **no viajan al cliente** durante una prueba.
-- Las versiones publicadas de preguntas y pruebas son **inmutables**: se crea una nueva versión.
+- El esquema vigente no tiene versionado; las migraciones bloquean cambios a preguntas y
+  evaluaciones vinculadas a intentos.
 - Se prefiere **archivar** antes que eliminar.
 
 ## Pendiente del propietario
 
-1. **Credenciales de Supabase** — bloquean la Fase 2. Se configuran en `.env.local`, nunca por chat.
+1. **Acceso a Supabase de desarrollo** — necesario para cotejar y aplicar migraciones; no compartas credenciales por chat.
 2. **Grafía de la marca** — los documentos escriben «Preicfes»; el logotipo, «Preicfés» (CONF-02).
-3. **Razón social** para privacidad y términos.
-4. **Contenido institucional real** — historia, misión, visión, valores, equipo y cifras verificadas.
+3. **Fórmula del puntaje estimado 0–500** — metodología y redondeo.
+4. **Razón social** para privacidad y términos.
+5. **Contenido institucional real** — historia, misión, visión, valores, equipo y cifras verificadas.

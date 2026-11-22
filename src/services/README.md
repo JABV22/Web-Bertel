@@ -2,6 +2,6 @@
 
 Acceso a datos y contratos con Supabase (ARCH §7, capa de infraestructura).
 
-`auth.ts` expone `getCurrentUser()` para consultar la identidad autenticada
-desde código de servidor. Los errores reales de Supabase se propagan; la
-ausencia normal de sesión devuelve `null` ez xd.
+`auth.ts` expone `getCurrentUser()` y `requireRole()` para consultar la identidad y verificar
+permisos desde código de servidor. `assessments.ts` carga evaluaciones/resultados y delega inicio,
+guardado y entrega a RPC de Supabase; las claves nunca se consultan desde el cliente.

@@ -24,12 +24,10 @@ export function LoginForm() {
           password,
         },
       );
-
       if (authError) {
         setError("El correo o la contraseña no son correctos.");
         return;
       }
-
       router.replace("/panel");
       router.refresh();
     } catch {

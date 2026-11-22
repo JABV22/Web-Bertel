@@ -1,8 +1,8 @@
 # FUENTES — Inventario de documentos fuente
 
-**Última actualización:** 2026-09-05 · **Fase:** 0 — **CERRADA**
+**Última actualización:** 2026-11-18 · **Fase:** 2 — en curso
 
-> Los cuatro documentos fueron entregados por el propietario el 2026-09-05 y **leídos íntegramente**.
+> Los cuatro documentos base fueron entregados por el propietario el 2026-09-05 y **leídos íntegramente**.
 > Se copiaron byte a byte desde `c:\Users\tomyg\Downloads\` a `docs/`, siguiendo la convención de
 > ARCHITECTURE.md §85 (`/docs/PRD.md`, `ARCHITECTURE.md`, `DATABASE.md`, `WIREFRAMES.md`).
 
@@ -15,7 +15,8 @@
 | DOC-03 | MODELO COMPLETO DE BASE DE DATOS | [DATABASE.md](DATABASE.md) | v1.0 | **LEÍDO ÍNTEGRO** (100 secciones, 1.665 líneas) | 44 tablas, RLS, versionado, inmutabilidad y reglas explícitas para Claude Code (§87). |
 | DOC-04 | WIREFRAMES MAESTROS | [WIREFRAMES.md](WIREFRAMES.md) | v1.0 | **LEÍDO ÍNTEGRO** (96 secciones, 1.216 líneas) | ~85 pantallas, 10 pantallas maestras prioritarias, componentes y reglas UX. |
 
-**4 de 4 disponibles y leídos.** Ninguna parte resultó ilegible: los archivos son UTF-8 válido.
+**4 de 4 documentos base disponibles y leídos.** Ninguna parte resultó ilegible: los archivos son
+UTF-8 válido.
 
 Nota de codificación: el texto adjuntado al chat llegó con mojibake (`VersiÃ³n`). Los archivos en
 disco **no** tienen ese problema; se copiaron los originales, no la versión del chat.
@@ -72,3 +73,15 @@ Sigue siendo insumo candidato, **pendiente de autorización** como contenido pub
 | Portafolios y `PRESENTACION RESULTADOS ESTADISTICOS 2025` | `institutional_metrics` (DOC-03 §46) y página Resultados | 3 |
 | Simulacros y claves de respuesta en PDF | Banco de preguntas (`questions` / `question_versions`) | 4 |
 | `PROPUESTA PARA MUNICIPIOS.docx` | **Descartado** como contenido institucional (CONF-01) | — |
+
+## 5. Fuente adicional recibida el 2026-11-18
+
+| ID | Título real | Ruta de origen | Versión / fecha | Estado de lectura | Observaciones |
+|---|---|---|---|---|---|
+| DOC-05 | Diccionario de datos — Pre-ICFES Bertel / Supabase | `C:\Users\kent\Downloads\Diccionario_de_Datos_PreICFES_Bertel.pdf` | Sin versión/fecha editorial visible; archivo actualizado 2026-11-18 | **LEÍDO ÍNTEGRO** (9 páginas) | Resume el esquema SQL vigente: 24 tablas y 109 columnas. SHA-256: `CFCE9332A1FB64893B40D0FC04822C24719C16BEE9E1C5D66CB509C4D50B519C`. Su modelo de datos prevalece sobre DOC-03 v1.0 por instrucción del propietario; las decisiones de producto previas que contradicen el diccionario se resolvieron el 2026-11-18. Ver [DICCIONARIO_DATOS.md](DICCIONARIO_DATOS.md). |
+
+## 6. Metodología recibida el 2026-11-19
+
+| ID | Título real | Ruta de origen | Versión / fecha | Estado de lectura | Observaciones |
+|---|---|---|---|---|---|
+| DOC-06 | Metodología y Fórmulas de Calificación: Prueba Estilo ICFES (Saber 11) | `C:\Users\kent\Downloads\Metodología_y_Fórmulas_de_Calificación_-_Prueba_Estilo_ICFES__Saber_11_.pdf` | Sin versión editorial; PDF creado el 2026-11-19 | **LEÍDO ÍNTEGRO** (3 páginas) | Define puntajes por área 0–100, pesos relativos 3/3/3/3/1, normalización dinámica en pruebas parciales, factor 5 y redondeo entero final. Es simulación orientativa, no IRT oficial. SHA-256: `4EF7D04714DC737F6C985B053CE9AB73D6D2D40701E580E5425BDE8F2A7F5D69`. Ver [CALIFICACION.md](CALIFICACION.md). |

@@ -2,7 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 const NAV_ITEMS = [
   { href: "/panel", label: "Inicio" },
@@ -13,6 +15,29 @@ const NAV_ITEMS = [
 
 export function PanelSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    setSignOutError("");
+
+    try {
+      const { error } = await createClient().auth.signOut({ scope: "local" });
+      if (error) {
+        setSignOutError("No fue posible cerrar la sesión. Intenta de nuevo.");
+        setIsSigningOut(false);
+        return;
+      }
+
+      router.replace("/ingreso");
+      router.refresh();
+    } catch {
+      setSignOutError("No fue posible cerrar la sesión. Intenta de nuevo.");
+      setIsSigningOut(false);
+    }
+  }
 
   return (
     <nav className="lateral" aria-label="Portal">
@@ -44,7 +69,17 @@ export function PanelSidebar() {
         })}
       </ul>
 
-      <p className="lateral__pie">Prototipo — Fase de diseño</p>
+      <div className="lateral__pie">
+        <button
+          className="lateral__salir"
+          type="button"
+          onClick={handleSignOut}
+          disabled={isSigningOut}
+        >
+          {isSigningOut ? "Cerrando sesión..." : "Cerrar sesión"}
+        </button>
+        {signOutError && <p role="alert">{signOutError}</p>}
+      </div>
     </nav>
   );
 }
