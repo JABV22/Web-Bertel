@@ -1,0 +1,362 @@
+/* ============================================================
+   PLATAFORMA BERTEL — Portal académico
+   ------------------------------------------------------------
+   Mismo sistema visual que el sitio público, con el movimiento
+   ajustado a la tarea. Sin escenas sticky, sin paralaje y sin
+   objetos 3D en las rutas de simulacro y administración.
+   Estas páginas NO cargan js/escena.js.
+   ============================================================ */
+
+/* ============================================================
+   1. INGRESO
+   ============================================================ */
+
+.acceso {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.acceso__forma {
+  display: grid; align-content: center;
+  padding: var(--e8) clamp(24px, 6vw, 88px);
+  background: var(--base-calida);
+}
+.acceso__caja { width: 100%; max-width: 400px; margin-inline: auto; }
+.acceso__caja h1 { font-size: var(--t-h2); margin-bottom: var(--e3); }
+.acceso__caja > p { color: var(--texto-suave); margin-bottom: var(--e7); }
+
+/* Lado de profundidad: detalle secundario, nunca protagonista */
+.acceso__aparte {
+  position: relative; overflow: hidden;
+  display: grid; place-items: center;
+  padding: var(--e8);
+  background:
+    radial-gradient(100% 80% at 50% 0%, rgba(32,59,112,.6) 0%, transparent 62%),
+    linear-gradient(180deg, var(--bertel-azul-900) 0%, #0E1B33 100%);
+  perspective: 1500px;
+}
+.acceso__aparte .panel {
+  position: relative;
+  width: min(340px, 90%);
+  transform: rotateY(-11deg) rotateX(5deg);
+  box-shadow: 0 24px 50px rgba(4,10,24,.45), 0 60px 120px rgba(4,10,24,.35);
+}
+.acceso__lema {
+  position: absolute; left: clamp(24px,5vw,64px); bottom: clamp(24px,5vw,56px);
+  right: clamp(24px,5vw,64px);
+  color: #fff; font-size: var(--t-h3); font-weight: var(--peso-semi);
+  letter-spacing: -.02em; max-width: 20ch;
+}
+
+@media (max-width: 900px) {
+  .acceso { grid-template-columns: 1fr; }
+  .acceso__aparte { display: none; }
+}
+
+/* ---------- Formularios ---------- */
+
+.campo { display: grid; gap: var(--e2); margin-bottom: var(--e5); }
+.campo > label { font-size: var(--t-pequeno); font-weight: var(--peso-semi); color: var(--texto-fuerte); }
+
+.entrada {
+  width: 100%;
+  padding: 12px var(--e4);
+  font: inherit; font-size: var(--t-cuerpo);
+  color: var(--texto);
+  background: var(--blanco);
+  border: 1px solid var(--borde-fuerte);
+  border-radius: var(--r-sm);
+  transition: border-color var(--mov-rapido) var(--curva), box-shadow var(--mov-rapido) var(--curva);
+}
+.entrada:hover { border-color: #B9C3D4; }
+.entrada:focus {
+  outline: none;
+  border-color: var(--bertel-azul);
+  box-shadow: 0 0 0 3px rgba(29, 53, 100, .12);
+}
+.entrada[disabled] { background: var(--superficie-alt); color: #98A1B2; cursor: not-allowed; }
+.entrada[aria-invalid="true"] { border-color: var(--error); }
+
+.ayuda { font-size: var(--t-micro); color: var(--texto-suave); }
+.error-campo { font-size: var(--t-micro); color: var(--error); font-weight: var(--peso-medio); }
+
+.fila-forma { display: flex; align-items: center; justify-content: space-between; gap: var(--e4); margin-bottom: var(--e6); }
+.check { display: inline-flex; align-items: center; gap: var(--e2); font-size: var(--t-pequeno); color: var(--texto-suave); }
+
+/* ============================================================
+   2. ESTRUCTURA DEL PORTAL
+   ============================================================ */
+
+.portal { min-height: 100vh; display: grid; grid-template-columns: 248px 1fr; }
+
+.lateral {
+  background: var(--bertel-azul-900);
+  padding: var(--e5) var(--e4);
+  display: flex; flex-direction: column; gap: var(--e6);
+  position: sticky; top: 0; height: 100vh;
+}
+.lateral .marca__texto { color: #fff; }
+.lateral .marca__texto span { color: rgba(255,255,255,.55); }
+
+.menu-lateral { list-style: none; display: grid; gap: var(--e1); }
+.menu-lateral a {
+  display: flex; align-items: center; gap: var(--e3);
+  padding: 10px var(--e3); border-radius: var(--r-sm);
+  font-size: var(--t-pequeno); font-weight: var(--peso-medio);
+  color: rgba(255,255,255,.72); text-decoration: none;
+  transition: background var(--mov-rapido) var(--curva), color var(--mov-rapido) var(--curva);
+}
+.menu-lateral a:hover { background: rgba(255,255,255,.08); color: #fff; }
+.menu-lateral a[aria-current="page"] { background: rgba(255,255,255,.12); color: #fff; }
+.menu-lateral a[aria-current="page"]::before {
+  content: ""; width: 3px; height: 18px; border-radius: 2px; background: var(--bertel-oro);
+  margin-left: -11px;
+}
+
+.lateral__pie { margin-top: auto; font-size: var(--t-micro); color: rgba(255,255,255,.5); }
+
+.principal { background: var(--base-calida); min-width: 0; }
+
+.barra-sup {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: var(--e4);
+  padding: var(--e4) clamp(20px, 3vw, 40px);
+  background: rgba(250,250,247,.85);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--borde);
+}
+.barra-sup h1 { font-size: 1.2rem; margin-right: auto; }
+
+.avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--bertel-azul); color: #fff;
+  font-size: var(--t-micro); font-weight: var(--peso-fuerte);
+}
+
+.contenido { padding: clamp(24px, 3vw, 40px); }
+
+@media (max-width: 900px) {
+  .portal { grid-template-columns: 1fr; }
+  .lateral {
+    position: static; height: auto;
+    flex-direction: row; align-items: center; gap: var(--e4);
+    overflow-x: auto; padding: var(--e3) var(--e4);
+  }
+  .lateral .marca { margin-right: var(--e4); }
+  .menu-lateral { display: flex; gap: var(--e1); }
+  .menu-lateral a { white-space: nowrap; }
+  .menu-lateral a[aria-current="page"]::before { display: none; }
+  .lateral__pie { display: none; }
+}
+
+/* ============================================================
+   3. PANEL DEL ESTUDIANTE
+   ============================================================ */
+
+.rejilla-tarjetas {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(272px, 1fr));
+  gap: var(--e5);
+}
+
+.tarjeta-prueba { display: flex; flex-direction: column; padding: var(--e5); }
+.tarjeta-prueba h3 { font-size: 1.06rem; margin-bottom: var(--e2); }
+.tarjeta-prueba__meta { font-size: var(--t-micro); color: var(--texto-suave); margin-bottom: var(--e4); }
+.tarjeta-prueba__pie { margin-top: auto; padding-top: var(--e5); display: flex; align-items: center; gap: var(--e3); }
+
+/* Microinteracción discreta: elevación breve, sin desplazar contenido */
+.tarjeta-prueba {
+  transition: box-shadow var(--mov-normal) var(--curva), border-color var(--mov-normal) var(--curva);
+}
+.tarjeta-prueba:hover { box-shadow: var(--s-3); border-color: var(--borde-fuerte); }
+
+.resumen { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--e4); margin-bottom: var(--e7); }
+.resumen__dato { padding: var(--e5); border-radius: var(--r-md); background: var(--superficie); border: 1px solid var(--borde); }
+.resumen__valor { font-size: 1.9rem; font-weight: var(--peso-fuerte); color: var(--bertel-azul); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.resumen__nombre { font-size: var(--t-pequeno); color: var(--texto-suave); margin-top: var(--e1); }
+
+.titulo-bloque { display: flex; align-items: baseline; justify-content: space-between; gap: var(--e4); margin-bottom: var(--e5); }
+.titulo-bloque h2 { font-size: var(--t-h3); }
+
+/* ============================================================
+   4. SIMULACRO
+   Entorno estable: sin parallax, sin sticky de escena,
+   sin objetos 3D junto a las preguntas.
+   ============================================================ */
+
+.examen { display: grid; grid-template-columns: 1fr 268px; gap: var(--e6); align-items: start; }
+
+.examen__barra {
+  position: sticky; top: 0; z-index: 20;
+  display: flex; align-items: center; gap: var(--e4);
+  padding: var(--e3) clamp(20px, 3vw, 40px);
+  background: var(--blanco);
+  border-bottom: 1px solid var(--borde);
+}
+.examen__titulo { font-weight: var(--peso-semi); color: var(--texto-fuerte); margin-right: auto; }
+
+/* Temporizador: se apoya en el reloj del servidor; aquí sólo se presenta */
+.reloj {
+  display: inline-flex; align-items: center; gap: var(--e2);
+  padding: 7px 14px; border-radius: var(--r-full);
+  background: var(--superficie-alt); border: 1px solid var(--borde);
+  font-variant-numeric: tabular-nums; font-weight: var(--peso-semi);
+  font-size: var(--t-pequeno); color: var(--texto-fuerte);
+}
+.reloj--alerta { background: var(--error-suave); border-color: transparent; color: var(--error); }
+
+/* Estado de autoguardado: pendiente / guardando / guardado / error,
+   diferenciados por texto e icono, no sólo por color. */
+.guardado { display: inline-flex; align-items: center; gap: 6px; font-size: var(--t-micro); font-weight: var(--peso-medio); }
+.guardado--pendiente { color: var(--texto-suave); }
+.guardado--guardando { color: var(--bertel-azul); }
+.guardado--ok { color: var(--exito); }
+.guardado--error { color: var(--error); }
+
+.pregunta-larga { padding: clamp(24px, 3vw, 40px); background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--r-lg); }
+.pregunta-larga__num { font-size: var(--t-micro); font-weight: var(--peso-semi); letter-spacing: var(--tracking-etiqueta); text-transform: uppercase; color: var(--texto-suave); margin-bottom: var(--e4); }
+.pregunta-larga__texto { font-size: 1.08rem; line-height: 1.7; color: var(--texto-fuerte); max-width: var(--medida); margin-bottom: var(--e6); }
+
+/* Opciones grandes y cómodas, con área de toque amplia */
+.opciones-examen { list-style: none; display: grid; gap: var(--e3); max-width: var(--medida); }
+.opcion-examen {
+  display: flex; align-items: flex-start; gap: var(--e4);
+  padding: var(--e4) var(--e5);
+  border: 1px solid var(--borde-fuerte); border-radius: var(--r-md);
+  background: var(--blanco); cursor: pointer;
+  transition: border-color var(--mov-rapido) var(--curva), background var(--mov-rapido) var(--curva);
+}
+.opcion-examen:hover { border-color: var(--bertel-azul); background: rgba(29,53,100,.03); }
+.opcion-examen input { margin-top: 3px; accent-color: var(--bertel-azul); width: 18px; height: 18px; flex: none; }
+.opcion-examen:has(input:checked) { border-color: var(--bertel-azul); background: rgba(29,53,100,.05); box-shadow: inset 0 0 0 1px var(--bertel-azul); }
+.opcion-examen:has(input:focus-visible) { outline: 2px solid var(--bertel-oro); outline-offset: 2px; }
+
+.navegador { padding: var(--e5); position: sticky; top: 84px; }
+.navegador h3 { font-size: var(--t-pequeno); text-transform: uppercase; letter-spacing: var(--tracking-etiqueta); color: var(--texto-suave); margin-bottom: var(--e4); }
+.rejilla-num { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+.num {
+  aspect-ratio: 1; display: grid; place-items: center;
+  border-radius: var(--r-xs); border: 1px solid var(--borde);
+  background: var(--blanco); font-size: var(--t-micro); font-weight: var(--peso-semi);
+  color: var(--texto-suave); cursor: pointer; text-decoration: none;
+}
+.num:hover { border-color: var(--bertel-azul); }
+/* Respondida: color + marca, nunca sólo color */
+.num--hecha { background: var(--bertel-azul); border-color: var(--bertel-azul); color: #fff; }
+.num--actual { outline: 2px solid var(--bertel-oro); outline-offset: 1px; }
+
+.leyenda { display: grid; gap: var(--e2); margin-top: var(--e5); font-size: var(--t-micro); color: var(--texto-suave); }
+.leyenda span { display: flex; align-items: center; gap: var(--e2); }
+.leyenda i { width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--borde); flex: none; }
+
+.pie-examen { display: flex; align-items: center; gap: var(--e3); margin-top: var(--e6); }
+.pie-examen .btn:first-child { margin-right: auto; }
+
+@media (max-width: 900px) {
+  .examen { grid-template-columns: 1fr; }
+  .navegador { position: static; order: -1; }
+  .rejilla-num { grid-template-columns: repeat(10, 1fr); }
+}
+
+/* ============================================================
+   5. RESULTADOS
+   ============================================================ */
+
+.resultado-cabeza {
+  display: grid; grid-template-columns: auto 1fr; gap: var(--e6);
+  align-items: center; padding: clamp(24px,3vw,40px);
+  background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--r-lg);
+  margin-bottom: var(--e6);
+}
+.aro-grande {
+  width: 128px; height: 128px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: conic-gradient(var(--bertel-oro) calc(var(--v,0) * 1%), var(--superficie-alt) 0);
+}
+.aro-grande > div {
+  width: 104px; height: 104px; border-radius: 50%; background: var(--blanco);
+  display: grid; place-items: center; text-align: center;
+}
+.aro-grande strong { font-size: 1.8rem; color: var(--bertel-azul); letter-spacing: -.03em; font-variant-numeric: tabular-nums; }
+.aro-grande span { font-size: var(--t-micro); color: var(--texto-suave); }
+
+.desglose { display: flex; gap: var(--e3); flex-wrap: wrap; margin-top: var(--e4); }
+
+.tabla-resultado { width: 100%; border-collapse: collapse; font-size: var(--t-pequeno); }
+.tabla-resultado th, .tabla-resultado td { padding: var(--e3) var(--e4); text-align: left; border-bottom: 1px solid var(--borde); }
+.tabla-resultado th { font-size: var(--t-micro); text-transform: uppercase; letter-spacing: .06em; color: var(--texto-suave); font-weight: var(--peso-semi); }
+.tabla-resultado td:last-child, .tabla-resultado th:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   6. ADMINISTRACIÓN
+   Tablas, filtros y formularios compactos y consistentes.
+   ============================================================ */
+
+.filtros {
+  display: flex; flex-wrap: wrap; gap: var(--e3); align-items: end;
+  padding: var(--e4); margin-bottom: var(--e5);
+  background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--r-md);
+}
+.filtros .campo { margin-bottom: 0; min-width: 168px; }
+.filtros .entrada { padding: 9px var(--e3); font-size: var(--t-pequeno); }
+
+.tabla-envoltura { overflow-x: auto; background: var(--blanco); border: 1px solid var(--borde); border-radius: var(--r-md); }
+
+.tabla { width: 100%; border-collapse: collapse; font-size: var(--t-pequeno); min-width: 720px; }
+.tabla th, .tabla td { padding: 11px var(--e4); text-align: left; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+.tabla thead th {
+  position: sticky; top: 0; background: var(--superficie-alt);
+  font-size: var(--t-micro); text-transform: uppercase; letter-spacing: .06em;
+  color: var(--texto-suave); font-weight: var(--peso-semi);
+}
+.tabla tbody tr:hover { background: var(--superficie-alt); }
+.tabla tbody tr:last-child td { border-bottom: 0; }
+.tabla .acciones { display: flex; gap: var(--e2); justify-content: flex-end; }
+
+.paginacion { display: flex; align-items: center; justify-content: space-between; gap: var(--e4); margin-top: var(--e4); font-size: var(--t-pequeno); color: var(--texto-suave); }
+
+/* ============================================================
+   7. ESTADOS TRANSVERSALES
+   ============================================================ */
+
+.estado-vacio {
+  display: grid; place-items: center; gap: var(--e3); text-align: center;
+  padding: var(--e9) var(--e5);
+  border: 1px dashed var(--borde-fuerte); border-radius: var(--r-lg);
+  color: var(--texto-suave);
+}
+.estado-vacio h3 { color: var(--texto-fuerte); }
+
+.alerta {
+  display: flex; gap: var(--e3); align-items: flex-start;
+  padding: var(--e4) var(--e5); border-radius: var(--r-md);
+  font-size: var(--t-pequeno); margin-bottom: var(--e5);
+}
+.alerta--info { background: rgba(29,53,100,.06); color: #2A3C5E; border: 1px solid rgba(29,53,100,.14); }
+.alerta--aviso { background: var(--bertel-oro-100); color: #6B4E0A; border: 1px solid rgba(230,179,50,.5); }
+.alerta--error { background: var(--error-suave); color: var(--error); border: 1px solid rgba(214,69,69,.3); }
+
+/* Carga: esqueleto sin movimiento cuando se pide movimiento reducido */
+.esqueleto {
+  background: linear-gradient(90deg, var(--superficie-alt) 25%, #EDF0F5 37%, var(--superficie-alt) 63%);
+  background-size: 400% 100%;
+  animation: brillo 1.4s ease infinite;
+  border-radius: var(--r-xs);
+}
+@keyframes brillo { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .esqueleto { animation: none; }
+  .tarjeta-prueba, .opcion-examen, .entrada { transition: none; }
+}
+
+/* El logotipo lleva trazos azul marino: sobre el lateral oscuro necesita
+   una superficie clara para conservar contraste y legibilidad. */
+.lateral .marca img,
+.acceso__aparte .marca img {
+  background: var(--blanco);
+  border-radius: var(--r-xs);
+  padding: 3px;
+}

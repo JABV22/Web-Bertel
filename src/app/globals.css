@@ -44,7 +44,7 @@
   --color-texto: #26324A;
 
   /* ---------- Tipografía ---------- */
-  --font-sans: "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  --font-sans: var(--font-inter, "Inter"), "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 
   /* Escala fluida: se adapta al ancho sin cortes ni desbordamientos */
   --text-display: clamp(2.6rem, 1.2rem + 5.6vw, 6rem);
@@ -89,7 +89,7 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   /* Evita desbordamiento horizontal (DOC-04 §92) */
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 /* Foco visible y coherente en todo el sistema (PRD §46) */

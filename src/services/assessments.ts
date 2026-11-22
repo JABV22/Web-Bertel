@@ -135,6 +135,42 @@ export async function getAdminAssessments() {
 }
 
 
+type QuestionAsset = { id: string; asset_url: string; alt_text: string };
+
+async function loadQuestionImages(
+  supabase: Awaited<ReturnType<typeof requireRole>>["supabase"],
+  assets: QuestionAsset[],
+) {
+  const storageOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const prefix = "/storage/v1/object/authenticated/";
+
+  return Promise.all(assets.map(async (asset) => {
+    const url = URL.canParse(asset.asset_url) ? new URL(asset.asset_url) : null;
+    if (!url || url.protocol !== "https:") return { ...asset, asset_url: "" };
+    if (!url.pathname.startsWith(prefix)) return asset;
+    if (!storageOrigin || url.origin !== new URL(storageOrigin).origin) {
+      return { ...asset, asset_url: "" };
+    }
+
+    const [bucket, ...segments] = url.pathname.slice(prefix.length).split("/");
+    const path = segments.map(decodeURIComponent).join("/");
+    const { data, error } = await supabase.storage.from(decodeURIComponent(bucket)).createSignedUrl(path, 3600);
+    if (data?.signedUrl) return { ...asset, asset_url: data.signedUrl };
+
+    if (error) console.warn("question image:", error.message);
+    return { ...asset, asset_url: "" };
+  }));
+}
+
+
+function loadSavedAnswers(supabase: Awaited<ReturnType<typeof requireRole>>["supabase"], attemptId: string) {
+  return supabase.from("student_answers")
+    .select("question_id, selected_option_id, is_correct")
+    .eq("attempt_id", attemptId)
+    .order("answered_at", { ascending: false, nullsFirst: false })
+    .order("id", { ascending: false });
+}
+
 export async function getAttempt(attemptId: string) {
   const { supabase, user, roles } = await requireRole(["estudiante", "profesor", "admin"]);
   let query = supabase
@@ -152,7 +188,8 @@ export async function getAttempt(attemptId: string) {
           question:questions!inner (
             id,
             statement,
-            question_options (id, option_text, position)
+            question_options (id, option_text, position),
+            question_assets (id, asset_url, alt_text)
           )
         )
       )
@@ -172,8 +209,18 @@ export async function getAttempt(attemptId: string) {
     const { data: answerData, error: answersError } = await supabase.rpc("get_attempt_answers", {
       p_attempt_id: attemptId,
     });
-    if (answersError) throw new Error("No fue posible recuperar las respuestas guardadas.");
-    savedAnswers = answerData ?? [];
+    if (answersError?.code === "PGRST202") {
+      const saved = await loadSavedAnswers(supabase, attemptId);
+      if (saved.error) throw new Error("No fue posible recuperar las respuestas guardadas.");
+      const latestByQuestion = new Map<string, (typeof saved.data)[number]>();
+      for (const row of saved.data) {
+        if (!latestByQuestion.has(row.question_id)) latestByQuestion.set(row.question_id, row);
+      }
+      savedAnswers = Array.from(latestByQuestion.values());
+    } else {
+      if (answersError) throw new Error("No fue posible recuperar las respuestas guardadas.");
+      savedAnswers = answerData ?? [];
+    }
   }
 
   const assessment = data.assessment as unknown as {
@@ -185,6 +232,7 @@ export async function getAttempt(attemptId: string) {
         id: string;
         statement: string;
         question_options: Array<{ id: string; option_text: string; position: number }>;
+        question_assets: QuestionAsset[];
       };
     }>;
   };
@@ -197,18 +245,19 @@ export async function getAttempt(attemptId: string) {
     status: data.status,
     expiresAt: data.expires_at,
     title: assessment.title,
-    questions: assessment.assessment_questions
+    questions: await Promise.all(assessment.assessment_questions
       .toSorted((left, right) => left.question_order - right.question_order)
-      .map(({ question }) => ({
+      .map(async ({ question }) => ({
         id: question.id,
         statement: question.statement,
+        assets: await loadQuestionImages(supabase, question.question_assets),
         selectedOptionId: answers.get(question.id) ?? null,
         options: question.question_options.toSorted((left, right) => left.position - right.position),
-      })),
+      }))),
   };
 }
 
-export async function getAssessmentResults() {
+export async function getAssessmentResults({ ownOnly = false } = {}) {
   const { supabase, user, roles } = await requireRole([
     "estudiante",
     "profesor",
@@ -233,7 +282,7 @@ export async function getAssessmentResults() {
     .order("computed_at", { ascending: false })
     .limit(50);
 
-  if (roles.includes("estudiante") && !roles.includes("admin") && !roles.includes("profesor")) {
+  if (ownOnly || (!roles.includes("admin") && !roles.includes("profesor"))) {
     query = query.eq("attempt.student_id", user.id);
   }
 
@@ -274,7 +323,16 @@ export async function getAttemptResult(attemptId: string) {
         status,
         submitted_at,
         assessment:assessments!inner (
-          title
+          title,
+          assessment_questions (
+            question_order,
+            question:questions (
+              id,
+              statement,
+              question_options (id, option_text, position),
+              question_assets (id, asset_url, alt_text)
+            )
+          )
         ),
         result:assessment_results (
           total_score,
@@ -288,7 +346,7 @@ export async function getAttemptResult(attemptId: string) {
       .single();
 
   let { data, error } = await loadAttempt();
-  if (error?.code === "PGRST116") return null;
+  if (error?.code === "PGRST116" || error?.code === "22P02") return null;
   if (error) throw new Error("No fue posible cargar el resultado.");
   if (!data) return null;
 
@@ -297,7 +355,18 @@ export async function getAttemptResult(attemptId: string) {
     student_id: string;
     status: string;
     submitted_at: string | null;
-    assessment: { title: string };
+    assessment: {
+      title: string;
+      assessment_questions: Array<{
+        question_order: number;
+        question: {
+          id: string;
+          statement: string;
+          question_options: Array<{ id: string; option_text: string; position: number }>;
+          question_assets: QuestionAsset[];
+        } | null;
+      }>;
+    };
     result: {
       total_score: number;
       correct_count: number;
@@ -335,7 +404,6 @@ export async function getAttemptResult(attemptId: string) {
       incorrect: null,
       unanswered: null,
       computedAt: null,
-      review: [],
     };
     }
   }
@@ -344,14 +412,64 @@ export async function getAttemptResult(attemptId: string) {
     return null;
   }
 
-  const { data: review, error: reviewError } = await supabase.rpc("get_attempt_review", {
+  type ReviewRow = {
+    question_id: string;
+    selected_option_id: string | null;
+    correct_option_id?: string | null;
+    is_correct: boolean | null;
+  };
+  const review = await supabase.rpc("get_graded_attempt_review", {
     p_attempt_id: attemptId,
   });
-  if (reviewError) throw new Error("No fue posible cargar la revisión de respuestas.");
-  const reviewRows = (review ?? []) as Array<{
-    question_id: string;
-    is_correct: boolean | null;
-  }>;
+  let reviewRows: ReviewRow[] = review.data ?? [];
+  let selectionsAvailable = !review.error;
+  const isOwnerOrAdmin = attempt.student_id === user.id || roles.includes("admin");
+
+  if (review.error) {
+    console.warn("get_graded_attempt_review failed:", review.error.code);
+    if (review.error.code === "PGRST202") {
+      const legacy = await supabase.rpc("get_attempt_review", { p_attempt_id: attemptId });
+      reviewRows = legacy.data ?? [];
+      selectionsAvailable = !legacy.error;
+    }
+    if (!selectionsAvailable && isOwnerOrAdmin) {
+      const saved = await loadSavedAnswers(supabase, attemptId);
+      reviewRows = saved.data ?? [];
+      selectionsAvailable = !saved.error;
+    }
+  }
+
+  const answersByQuestion = new Map<string, ReviewRow>();
+  for (const answer of reviewRows) {
+    if (!answersByQuestion.has(answer.question_id)) answersByQuestion.set(answer.question_id, answer);
+  }
+  const reviewAvailable = selectionsAvailable;
+  const questions = (await Promise.all(attempt.assessment.assessment_questions
+    .toSorted((left, right) => left.question_order - right.question_order)
+    .map(async ({ question, question_order }) => {
+      if (!question) return [];
+      const answer = answersByQuestion.get(question.id);
+      const selectedOptionId = answer?.selected_option_id ?? null;
+      const correctOptionId = answer?.correct_option_id ??
+        (answer?.is_correct === true ? selectedOptionId : null);
+      const isCorrect = correctOptionId && selectedOptionId
+        ? selectedOptionId === correctOptionId
+        : answer?.is_correct ?? null;
+      return [{
+        questionId: question.id,
+        order: question_order,
+        statement: question.statement,
+        assets: await loadQuestionImages(supabase, question.question_assets),
+        options: question.question_options.toSorted((left, right) => left.position - right.position),
+        selectedOptionId,
+        correctOptionId,
+        answerStatus: !selectedOptionId
+          ? (selectionsAvailable ? "Omitida" : null)
+          : isCorrect === null
+            ? "Sin calificación"
+            : isCorrect ? "Correcta" : "Incorrecta",
+      }];
+    }))).flat();
 
   return {
     id: attempt.id,
@@ -364,9 +482,9 @@ export async function getAttemptResult(attemptId: string) {
     incorrect: attempt.result.incorrect_count,
     unanswered: attempt.result.unanswered_count,
     computedAt: attempt.result.computed_at,
-    review: reviewRows.map((answer) => ({
-      questionId: answer.question_id,
-      isCorrect: answer.is_correct,
-    })),
+    reviewAvailable,
+    keysAvailable: questions.length > 0 && questions.every((question) =>
+      question.options.some(({ id }) => id === question.correctOptionId)),
+    questions,
   };
 }

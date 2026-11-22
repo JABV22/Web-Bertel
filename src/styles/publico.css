@@ -36,16 +36,10 @@
   font-style: normal;
   color: var(--bertel-azul);
   position: relative;
-  white-space: nowrap;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  background: linear-gradient(var(--bertel-oro), var(--bertel-oro)) 0 96% / 100% .09em no-repeat;
 }
-/* Subrayado de acento dibujado, no dependiente de color solo */
-.hero__titular em::after {
-  content: "";
-  position: absolute; left: 0; right: 0; bottom: .04em;
-  height: .09em; border-radius: var(--r-full);
-  background: var(--bertel-oro);
-}
-
 .hero__apoyo { font-size: var(--t-guia); color: var(--texto-suave); max-width: 44ch; margin-bottom: var(--e6); }
 
 .hero__acciones { display: flex; flex-wrap: wrap; gap: var(--e3); align-items: center; }
@@ -59,21 +53,10 @@
 
 .hero__escena {
   position: relative;
-  min-height: 700px;                 /* reserva de espacio: evita saltos de diseño */
+  min-height: 500px;                 /* reserva de espacio: evita saltos de diseño */
   perspective: var(--perspectiva);
   perspective-origin: 50% 42%;
 }
-
-/* Imagen de respaldo: visible hasta que la escena está lista,
-   y permanente si el guion falla o hay movimiento reducido. */
-.respaldo {
-  position: absolute; inset: 0;
-  display: grid; place-items: center;
-  border-radius: var(--r-xl);
-  background: linear-gradient(160deg, #EEF1F6 0%, #E3E8F1 100%);
-  border: 1px solid var(--borde);
-}
-.escena-lista .respaldo { display: none; }
 
 .hero__pila {
   position: relative; width: 100%; height: 100%;
@@ -118,7 +101,9 @@
   position: absolute; inset: 0;
   display: flex; flex-direction: column; justify-content: center;
   opacity: 0;
-  transition: opacity var(--mov-pausado) var(--curva);
+  transform: translateY(14px);
+  transition: opacity var(--mov-pausado) var(--curva),
+              transform var(--mov-pausado) var(--curva-salida);
   pointer-events: none;
 }
 .paso[data-activo="true"] { opacity: 1; transform: none; pointer-events: auto; }
@@ -260,26 +245,8 @@
 
 /* ============================================================
    8. ADAPTACIÓN MÓVIL
-   La secuencia sticky se sustituye por bloques verticales. 
+   La secuencia sticky se sustituye por bloques verticales.
    ============================================================ */
-
-@media (max-width: 1200px) {
-  .hero__titular { em { font-size: var(--t-h1); } }
-}
-
-@media (max-width: 980px) {
-  .hero__rejilla { grid-template-columns: 1fr; }
-  .hero__titular { max-width: 18ch; em {font-size: var(--t-display);} } 
-  .hero__escena { min-height: 380px; order: 2;  }
-
-  .editorial { grid-template-columns: 1fr; }
-  .programa, .programa:nth-child(even) { grid-template-columns: 1fr; }
-  .programa:nth-child(even) > .programa__visual { order: 0; }
-
-  .nav { display: none; }
-  .menu-btn { display: inline-flex; }
-  .cabecera__acciones .btn--linea { display: none; }
-}
 
 @media (max-width: 980px) {
   .hero__rejilla { grid-template-columns: 1fr; }
@@ -290,45 +257,45 @@
   .programa, .programa:nth-child(even) { grid-template-columns: 1fr; }
   .programa:nth-child(even) > .programa__visual { order: 0; }
 
-  .nav { display: none; }
+  .cabecera__nav { display: none; }
   .menu-btn { display: inline-flex; }
   .cabecera__acciones .btn--linea { display: none; }
 }
 
-@media (max-width: 980px) {
-  /* Sin recorrido sticky: bloques verticales ligeros */
-  .relato__pista { height: auto; }
-  .relato__escenario { position: static; height: auto; padding-block: var(--seccion-y); }
-  .relato__rejilla { grid-template-columns: 1fr; }
-  .relato__mensajes { position: static; min-height: 0; display: grid; gap: var(--e8); }
-  .paso {
-    position: static; opacity: 1; transform: none; pointer-events: auto;
-    display: grid; gap: var(--e4);
-    justify-items: start;
-  }
-  /* Titulares y textos a ancho completo y alineados a la izquierda */
-  .paso > * { justify-self: stretch !important; width: 100% !important; max-width: 100% !important; }
-  .paso h2 { text-wrap: pretty; }
-
-  .paso h2 { max-width: none; }
-  .relato__pasos { display: none; }
-  /* Los paneles dejan de estar superpuestos: se apilan y se leen */
-  .relato__vista { height: auto; perspective: none; }
-  .relato__pila { position: static; display: grid; gap: var(--e5); place-items: stretch; }
-  .relato__pila .panel {
-    position: relative; width: 100%; max-width: 420px; margin-inline: auto;
-    transform: none !important; opacity: 1 !important;
-    box-shadow: 0 14px 32px rgba(4, 10, 24, .38);
-  }
-  .relato__pila .panel::after { display: none; }
-  .halo { display: none; }
-
-  /* Profundidad reducida en móvil */
-  .relato__vista, .hero__escena { perspective: 1100px; }
+/* Sin animación, todos los pasos y paneles se pueden leer. */
+.relato:not(.escena-lista) .relato__pista { height: auto; }
+.relato:not(.escena-lista) .relato__escenario {
+  position: static;
+  height: auto;
+  padding-block: var(--seccion-y);
 }
+.relato:not(.escena-lista) .relato__rejilla { grid-template-columns: 1fr; }
+.relato:not(.escena-lista) .relato__mensajes { display: grid; gap: var(--e6); }
+.relato:not(.escena-lista) .paso {
+  position: static;
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.relato:not(.escena-lista) :is(.relato__pasos, .halo) { display: none; }
+.relato:not(.escena-lista) .relato__vista { height: auto; perspective: none; }
+.relato:not(.escena-lista) .relato__pila {
+  position: static;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--e4);
+  place-items: stretch;
+}
+.relato:not(.escena-lista) .relato__pila .panel {
+  position: relative;
+  width: 100%;
+  transform: none;
+  opacity: 1;
+}
+.relato:not(.escena-lista) .relato__pila .panel::after { display: none; }
 
 @media (max-width: 560px) {
-  .hero__escena, .hero__pila { min-height: 320px; }
+  .hero__escena, .hero__pila { min-height: 400px; }
   .panel { width: min(320px, 92%); }
   .grafico__fila { grid-template-columns: 100px 1fr 54px; gap: var(--e3); }
   .hero__acciones .btn { width: 100%; }
@@ -340,36 +307,10 @@
    conservando todos los mensajes.
    ============================================================ */
 
-@media (prefers-reduced-motion: reduce) {
-  .relato__pista { height: auto; }
-  .relato__escenario { position: static; height: auto; padding-block: var(--seccion-y); }
-  .relato__rejilla { grid-template-columns: 1fr; }
-  .relato__mensajes { position: static; min-height: 0; display: grid; gap: var(--e7); }
-  .paso { position: static; opacity: 1; transform: none; pointer-events: auto; justify-items: start; }
-  /* Titulares y textos a ancho completo y alineados a la izquierda */
-  .paso > * { justify-self: stretch !important; width: 100% !important; max-width: 100% !important; }
-  .paso h2 { text-wrap: pretty; }
-
-  .relato__pasos { display: none; }
-  /* Los paneles dejan de estar superpuestos: se apilan y se leen */
-  .relato__vista { height: auto; perspective: none; }
-  .relato__pila { position: static; display: grid; gap: var(--e5); place-items: stretch; }
-  .relato__pila .panel {
-    position: relative; width: 100%; max-width: 420px; margin-inline: auto;
-    transform: none !important; opacity: 1 !important;
-    box-shadow: 0 14px 32px rgba(4, 10, 24, .38);
-  }
-  .relato__pila .panel::after { display: none; }
-  .halo { display: none; }
-
-  .programa__visual .panel, .programa__visual .panel:hover { transition: none; }
-  .enlace-flecha::after { transition: none; }
-}
-
 /* ============================================================
    10. DISPOSICIÓN DE LOS PANELES DEL HERO
    Composición en perspectiva con paralaje suave de puntero.
-   Las variables --mx/--my las escribe escena.js; si el guion
+   Las variables --mx/--my las escribe el controlador; si el guion
    no corre, valen 0deg y la composición queda estática y válida.
    ============================================================ */
 
@@ -407,18 +348,6 @@
   .hero__pila .panel--c { transform: translate3d(20%, 32%, 60px) rotateY(-8deg) rotateX(2deg); }
 }
 
-.respaldo__texto {
-  font-size: var(--t-pequeno);
-  font-weight: var(--peso-semi);
-  color: var(--texto-suave);
-  letter-spacing: var(--tracking-etiqueta);
-  text-transform: uppercase;
-}
-
-/* Si el guion falla, la escena nunca recibe .escena-lista y el
-   respaldo permanece visible sobre los paneles. */
-.escena-fallida .hero__pila { opacity: 0; }
-
 /* ============================================================
    11. MENÚ MÓVIL
    Operable con una mano, sin depender de hover.
@@ -427,9 +356,10 @@
 .menu-movil[hidden] { display: none !important; }
 
 .menu-movil {
-  position: sticky;
-  top: var(--cabecera-alto);
-  z-index: 99;
+  position: absolute;
+  inset: 100% 0 auto;
+  max-height: calc(100dvh - var(--cabecera-alto));
+  overflow-y: auto;
   display: grid;
   gap: var(--e1);
   padding: var(--e4) var(--canal) var(--e5);
@@ -461,4 +391,13 @@
 /* Movimiento reducido: sin paralaje de puntero */
 @media (prefers-reduced-motion: reduce) {
   .hero__pila .panel { transition: none; }
+}
+
+@media (min-width: 1250px) {
+  .hero__titular em { font-size: .8em; white-space: nowrap; }
+}
+
+@media (max-width: 560px) {
+  .cabecera__fila, .cabecera__acciones { gap: var(--e2); }
+  .cabecera .marca img { flex-shrink: 0; }
 }

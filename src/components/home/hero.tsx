@@ -41,9 +41,6 @@ export default function Hero() {
 
         {/* <!-- Escenario 3D: paneles de interfaz suspendidos --> */}
         <div className="hero__escena" data-hero-escena>
-          <div className="respaldo" aria-hidden="true">
-            <span className="respaldo__texto">Vista de la plataforma</span>
-          </div>
 
           <div
             className="hero__pila"

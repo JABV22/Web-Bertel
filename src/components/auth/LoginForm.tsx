@@ -1,18 +1,15 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { SyntheticEvent, useState } from "react";
+import { type FormEvent, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export function LoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(event: SyntheticEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
     setIsSubmitting(true);
@@ -26,23 +23,21 @@ export function LoginForm() {
       );
       if (authError) {
         setError("El correo o la contraseña no son correctos.");
+        setIsSubmitting(false);
         return;
       }
-      router.replace("/panel");
-      router.refresh();
+      window.location.replace(window.location.href);
     } catch {
       setError("No fue posible conectar con el servicio de acceso.");
-    } finally {
       setIsSubmitting(false);
     }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-8 space-y-5" noValidate>
-      <div>
+    <form method="post" onSubmit={handleSubmit} aria-busy={isSubmitting}>
+      <div className="campo">
         <label
           htmlFor="correo"
-          className="mb-2 block text-sm font-semibold text-texto-fuerte"
         >
           Correo electrónico
         </label>
@@ -54,14 +49,13 @@ export function LoginForm() {
           required
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          className="w-full rounded-lg border border-borde-fuerte bg-superficie px-4 py-3 text-sm text-texto outline-none focus:border-bertel-oro"
+          className="entrada"
         />
       </div>
 
-      <div>
+      <div className="campo">
         <label
           htmlFor="clave"
-          className="mb-2 block text-sm font-semibold text-texto-fuerte"
         >
           Contraseña
         </label>
@@ -73,19 +67,13 @@ export function LoginForm() {
           required
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          className="w-full rounded-lg border border-borde-fuerte bg-superficie px-4 py-3 text-sm text-texto outline-none focus:border-bertel-oro"
+          className="entrada"
         />
-      </div>
-
-      <div className="flex justify-end text-sm">
-        <Link href="#" className="text-bertel-azul hover:underline">
-          ¿Olvidaste tu contraseña?
-        </Link>
       </div>
 
       {error && (
         <p
-          className="rounded-lg bg-error/10 px-4 py-3 text-sm text-error"
+          className="mb-4 rounded-lg bg-error/10 px-4 py-3 text-sm text-error"
           role="alert"
         >
           {error}
@@ -95,12 +83,12 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-lg bg-bertel-azul px-4 py-3 text-sm font-semibold text-white transition-colors hover:bg-bertel-azul-700 disabled:cursor-wait disabled:opacity-60"
+        className="btn w-full"
       >
         {isSubmitting ? "Ingresando..." : "Ingresar"}
       </button>
 
-      <p className="text-center text-xs leading-5 text-gris-texto">
+      <p className="ayuda mt-5 text-center">
         ¿Problemas para entrar? Contacta a tu coordinador académico.
       </p>
     </form>

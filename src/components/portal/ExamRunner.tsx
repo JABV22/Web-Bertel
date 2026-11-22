@@ -1,5 +1,7 @@
 "use client";
 
+import { describeOption, optionLetter, QuestionAnswerSummary } from "./QuestionAnswerSummary";
+import { QuestionImages } from "./QuestionImages";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -10,6 +12,7 @@ import {
 type ExamQuestion = {
   id: string;
   statement: string;
+  assets: Array<{ id: string; asset_url: string; alt_text: string }>;
   selectedOptionId: string | null;
   options: Array<{ id: string; option_text: string; position: number }>;
 };
@@ -182,6 +185,10 @@ export function ExamRunner({
           >
             {currentQuestion.statement}
           </h2>
+          <QuestionAnswerSummary
+            selected={describeOption(currentQuestion.options, answers.get(currentQuestion.id), "Sin marcar")}
+          />
+          <QuestionImages assets={currentQuestion.assets} />
           <fieldset
             disabled={
               pendingQuestionId !== null ||
@@ -193,7 +200,7 @@ export function ExamRunner({
             <ul className="space-y-3">
               {currentQuestion.options.map((option, index) => (
                 <li key={option.id}>
-                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-borde p-4 hover:border-bertel-azul">
+                  <label className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 hover:border-bertel-azul ${answers.get(currentQuestion.id) === option.id ? "border-bertel-azul bg-superficie-alt" : "border-borde"}`}>
                     <input
                       className="mt-1 accent-bertel-azul"
                       type="radio"
@@ -205,10 +212,13 @@ export function ExamRunner({
                       }
                     />
                     <span className="font-semibold text-texto-fuerte">
-                      {String.fromCharCode(65 + index)}.
+                      {optionLetter(index)}.
                     </span>
                     <span className="text-sm leading-6 text-texto">
-                      {option.option_text}
+                      {option.option_text === optionLetter(index) ? null : option.option_text}
+                      {answers.get(currentQuestion.id) === option.id && (
+                        <span className="ml-2 font-semibold text-bertel-azul">Respuesta marcada</span>
+                      )}
                     </span>
                   </label>
                 </li>

@@ -25,7 +25,7 @@ body {
   background: var(--base-calida);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;               /* evita desbordamiento horizontal */
+  overflow-x: clip;               /* evita desbordamiento horizontal */
 }
 
 h1, h2, h3, h4 {

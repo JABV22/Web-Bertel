@@ -1,0 +1,137 @@
+/* ============================================================
+   PLATAFORMA BERTEL — Tokens del sistema visual
+   ------------------------------------------------------------
+   Origen de los valores de marca (VERIFICADO, no inventado):
+   extraídos de los dashboards del propietario
+   `dashboard_preicfes_bertel_8c_20_de_enero_2026.html` y
+   `dashboard_preicfes_bertel_9b_segundo_simulacro_2026.html`,
+   que declaran "Preicfés Bertel · Paleta corporativa integrada",
+   y del logotipo incrustado en ellos (monograma PB).
+
+   Ambos archivos coinciden de forma independiente en #1D3564
+   (azul marino dominante) y #E6B332 (oro corporativo).
+   Ver docs/DISENO.md §1 para la trazabilidad completa.
+   ============================================================ */
+
+:root {
+  /* ---------- Marca (verificada) ---------- */
+  --bertel-azul: #1D3564;          /* primario, dominante en los dashboards */
+  --bertel-azul-900: #142647;
+  --bertel-azul-800: #172B55;      /* extremo del degradado corporativo */
+  --bertel-azul-700: #203B70;      /* punto medio del degradado corporativo */
+  --bertel-azul-600: #28457F;
+  --bertel-oro: #E6B332;           /* acento corporativo / CTA */
+  --bertel-oro-600: #DCA827;       /* estado pulsado del oro */
+  --bertel-oro-100: #F8E6AE;       /* fondo tenue de acento */
+
+  /* ---------- Neutros ---------- */
+  --gris-texto: #667085;           /* texto secundario, tomado de los dashboards */
+  --blanco: #FFFFFF;
+  --base-calida: #FAFAF7;          /* fondo cálido de página */
+  --superficie: #FFFFFF;
+  --superficie-alt: #F4F6F9;
+  --borde: #E4E8EF;
+  --borde-fuerte: #D3DAE6;
+
+  /* ---------- Semánticos ---------- */
+  --exito: #2D6A4F;
+  --exito-suave: rgba(45, 106, 79, .12);
+  --error: #D64545;
+  --error-suave: rgba(214, 69, 69, .11);
+  --aviso: #B7791F;
+
+  /* ---------- Texto ---------- */
+  --texto-fuerte: var(--bertel-azul-900);
+  --texto: #26324A;
+  --texto-suave: var(--gris-texto);
+  --texto-inverso: #FFFFFF;
+  --texto-inverso-suave: rgba(255, 255, 255, .72);
+
+  /* ---------- Tipografía ---------- */
+  --fuente: "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+
+  /* Escala fluida: se adapta al ancho sin cortes ni desbordamientos */
+  --t-display: clamp(2.6rem, 1.2rem + 5.6vw, 6rem);
+  --t-h1: clamp(2.1rem, 1.1rem + 3.9vw, 4.2rem);
+  --t-h2: clamp(1.7rem, 1.1rem + 2.4vw, 3rem);
+  --t-h3: clamp(1.25rem, 1rem + 1.05vw, 1.7rem);
+  --t-guia: clamp(1.05rem, .95rem + .6vw, 1.35rem);  /* subtítulo/lead */
+  --t-cuerpo: 1rem;
+  --t-pequeno: .875rem;
+  --t-micro: .78rem;
+
+  --peso-normal: 400;
+  --peso-medio: 500;
+  --peso-semi: 600;
+  --peso-fuerte: 700;
+
+  --interlineado-titular: 1.04;
+  --interlineado-cuerpo: 1.62;
+  --tracking-titular: -.028em;
+  --tracking-etiqueta: .13em;
+
+  /* Ancho de lectura controlado */
+  --medida: 68ch;
+  --medida-corta: 46ch;
+
+  /* ---------- Espaciado (escala de 4) ---------- */
+  --e1: 4px;   --e2: 8px;   --e3: 12px;  --e4: 16px;
+  --e5: 24px;  --e6: 32px;  --e7: 48px;  --e8: 64px;
+  --e9: 96px;  --e10: 128px; --e11: 176px;
+
+  --seccion-y: clamp(72px, 9vw, 160px);
+  --ancho-max: 1240px;
+  --ancho-estrecho: 780px;
+  --canal: clamp(20px, 5vw, 64px);   /* margen lateral */
+
+  /* ---------- Radios ---------- */
+  --r-xs: 6px;
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-full: 999px;
+
+  /* ---------- Sombras: una sola fuente de luz, cenital y frontal ---------- */
+  --s-1: 0 1px 2px rgba(20, 38, 71, .05), 0 1px 1px rgba(20, 38, 71, .04);
+  --s-2: 0 2px 6px rgba(20, 38, 71, .06), 0 4px 12px rgba(20, 38, 71, .05);
+  --s-3: 0 6px 16px rgba(20, 38, 71, .08), 0 12px 32px rgba(20, 38, 71, .06);
+  --s-4: 0 12px 28px rgba(20, 38, 71, .10), 0 28px 64px rgba(20, 38, 71, .08);
+  --s-panel: 0 18px 40px rgba(8, 18, 40, .28), 0 48px 96px rgba(8, 18, 40, .22);
+  --s-foco: 0 0 0 3px rgba(230, 179, 50, .45);
+
+  /* ---------- Movimiento ---------- */
+  --mov-rapido: 120ms;
+  --mov-normal: 200ms;
+  --mov-pausado: 320ms;
+  --curva: cubic-bezier(.4, 0, .2, 1);
+  --curva-salida: cubic-bezier(.16, 1, .3, 1);
+
+  /* ---------- Profundidad 3D ---------- */
+  --perspectiva: 1600px;
+  --grosor-panel: 10px;   /* grosor sutil de los paneles suspendidos */
+
+  --cabecera-alto: 64px;
+}
+
+/* Superficies oscuras: se redefinen los tokens de texto y borde,
+   no se inventan colores nuevos fuera de la paleta. */
+.tema-oscuro {
+  --superficie: rgba(255, 255, 255, .06);
+  --superficie-alt: rgba(255, 255, 255, .09);
+  --borde: rgba(255, 255, 255, .14);
+  --borde-fuerte: rgba(255, 255, 255, .22);
+  --texto-fuerte: #FFFFFF;
+  --texto: rgba(255, 255, 255, .88);
+  --texto-suave: rgba(255, 255, 255, .62);
+}
+
+/* Movimiento reducido: se conserva TODA la información,
+   se elimina únicamente el movimiento. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --mov-rapido: 1ms;
+    --mov-normal: 1ms;
+    --mov-pausado: 1ms;
+  }
+}

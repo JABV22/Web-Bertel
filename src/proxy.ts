@@ -18,15 +18,29 @@ function isProtectedPath(pathname: string) {
   );
 }
 
-// Middleware principal: valida la sesión de Supabase y aplica reglas de acceso por ruta.
 export async function proxy(request: NextRequest) {
-  // Se crea la respuesta base que continuará la petición si no hay redirección.
+  const { pathname, search } = request.nextUrl;
+  const protectedPath = isProtectedPath(pathname);
+  const loginUrl = new URL("/ingreso", request.url);
+  loginUrl.searchParams.set("destino", pathname + search);
+
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!url || !key) {
+    return protectedPath ? NextResponse.redirect(loginUrl) : NextResponse.next();
+  }
+
   let response = NextResponse.next({ request });
+  function redirectWithCookies(destination: URL) {
+    const redirect = NextResponse.redirect(destination);
+    for (const cookie of response.cookies.getAll()) redirect.cookies.set(cookie);
+    return redirect;
+  }
 
   // Cliente de Supabase para leer cookies y comprobar la autenticación del usuario en el servidor.
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    url,
+    key,
     {
       cookieOptions: { maxAge: SESSION_MAX_AGE_SECONDS },
       cookies: {
@@ -56,17 +70,12 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // Si la ruta es protegida y el usuario no está autenticado, se fuerza a ingresar.
-  if (isProtectedPath(request.nextUrl.pathname) && !user) {
-    console.log("Ruta protegida sin sesión, redirigiendo a ingreso.");
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = "/ingreso";
-    loginUrl.search = "";
-    return NextResponse.redirect(loginUrl);
+  if (protectedPath && !user) {
+    return redirectWithCookies(loginUrl);
   }
 
   // Reglas especiales para /prueba-supabase: solo admin y usuario activo puede entrar.
   if (request.nextUrl.pathname === "/prueba-supabase" && user) {
-    console.log("Verificando acceso a /prueba-supabase para usuario:", user.id);
     const [{ data: profile }, { data: userRoles }] = await Promise.all([
       supabase.from("profiles").select("status").eq("id", user.id).maybeSingle(),
       supabase.from("user_roles").select("roles!inner(name)").eq("user_id", user.id),
@@ -79,13 +88,12 @@ export async function proxy(request: NextRequest) {
       const deniedUrl = request.nextUrl.clone();
       deniedUrl.pathname = "/sin-acceso";
       deniedUrl.search = "";
-      return NextResponse.redirect(deniedUrl);
+      return redirectWithCookies(deniedUrl);
     }
   }
 
   // Si el usuario ya se autenticó y entra a /ingreso, se lo redirige al portal correcto según rol y estado.
   if (request.nextUrl.pathname === "/ingreso" && user) {
-    console.log("Usuario autenticado accediendo a /ingreso, redirigiendo al portal correspondiente.");
     const [{ data: userRoles }, { data: profile }] = await Promise.all([
       supabase.from("user_roles").select("roles!inner(name)").eq("user_id", user.id),
       supabase.from("profiles").select("status").eq("id", user.id).maybeSingle(),
@@ -105,7 +113,14 @@ export async function proxy(request: NextRequest) {
             ? "/panel"
             : "/sin-acceso";
     portalUrl.search = "";
-    return NextResponse.redirect(portalUrl);
+    const destino = request.nextUrl.searchParams.get("destino");
+    if (portalUrl.pathname !== "/sin-acceso" && destino?.startsWith("/") && URL.canParse(destino, request.url)) {
+      const target = new URL(destino, request.url);
+      if (target.origin === request.nextUrl.origin && isProtectedPath(target.pathname)) {
+        return redirectWithCookies(target);
+      }
+    }
+    return redirectWithCookies(portalUrl);
   }
 
   // Si ninguna regla activa redirige, se devuelve la respuesta normal para continuar la petición.
@@ -114,9 +129,14 @@ export async function proxy(request: NextRequest) {
 
 export default proxy;
 
-// Configuración del middleware para ejecutarse en todas las rutas relevantes excepto assets y archivos estáticos.
+// Solo el ingreso y las rutas protegidas necesitan consultar la sesión.
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js)$).*)",
+    "/ingreso",
+    "/panel/:path*",
+    "/simulacro/:path*",
+    "/administracion/:path*",
+    "/resultados/:path*",
+    "/prueba-supabase/:path*",
   ],
 };

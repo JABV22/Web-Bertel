@@ -10,10 +10,10 @@ const NAV_ITEMS = [
   { href: "/panel", label: "Inicio" },
   { href: "/simulacro", label: "Mis pruebas" },
   { href: "/resultados", label: "Resultados" },
-  { href: "/administracion", label: "Administración" },
+  { href: "/administracion", label: "Administración", adminOnly: true },
 ];
 
-export function PanelSidebar() {
+export function PanelSidebar({ isAdmin }: { isAdmin: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
@@ -56,8 +56,8 @@ export function PanelSidebar() {
       </Link>
 
       <ul className="menu-lateral">
-        {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href;
+        {NAV_ITEMS.filter((item) => !item.adminOnly || isAdmin).map((item) => {
+          const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <li key={item.href}>
