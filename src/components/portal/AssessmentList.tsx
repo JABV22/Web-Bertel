@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { startAssessmentAction } from "@/app/(portal)/simulacro/actions";
@@ -11,6 +12,7 @@ type Assessment = {
   durationMinutes: number;
   status: string;
   canStart: boolean;
+  canReview: boolean;
   questionCount: number;
 };
 
@@ -60,20 +62,30 @@ export function AssessmentList({ assessments }: { assessments: Assessment[] }) {
                   {assessment.questionCount} preguntas · {assessment.durationMinutes} minutos · {assessment.status}
                 </p>
               </div>
-              {assessment.status !== "published" || !assessment.canStart || assessment.questionCount === 0 ? (
-                <span className="text-sm text-gris-texto">
-                  {assessment.status !== "published" ? "No disponible" : !assessment.canStart ? "Solo lectura" : "Sin preguntas"}
-                </span>
-              ) : (
-                <button
-                  className="btn btn--sm"
-                  type="button"
-                  disabled={startingId !== null}
-                  onClick={() => void startAssessment(assessment.id)}
-                >
-                  {startingId === assessment.id ? "Iniciando…" : "Comenzar"}
-                </button>
-              )}
+              <div className="flex flex-wrap items-center gap-3">
+                {assessment.canReview && assessment.questionCount > 0 && (
+                  <Link
+                    className="btn btn--sm btn--linea"
+                    href={`/simulacro/revision/${assessment.id}`}
+                  >
+                    Disponible para revisar
+                  </Link>
+                )}
+                {assessment.status === "published" && assessment.canStart && assessment.questionCount > 0 ? (
+                  <button
+                    className="btn btn--sm"
+                    type="button"
+                    disabled={startingId !== null}
+                    onClick={() => void startAssessment(assessment.id)}
+                  >
+                    {startingId === assessment.id ? "Iniciando…" : "Comenzar"}
+                  </button>
+                ) : (!assessment.canReview || assessment.questionCount === 0) && (
+                  <span className="text-sm text-gris-texto">
+                    {assessment.questionCount === 0 ? "Sin preguntas" : "No disponible"}
+                  </span>
+                )}
+              </div>
             </li>
           ))}
         </ul>

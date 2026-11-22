@@ -1,12 +1,20 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { getAssessmentResults } from "@/services/assessments";
 
 export const metadata = {
   title: "Resultados",
 };
 
-export default async function ResultadosPage() {
-  const results = await getAssessmentResults();
+export default async function ResultadosPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ prueba?: string | string[] }>;
+}) {
+  const { prueba } = await searchParams;
+  const assessmentId = typeof prueba === "string" ? prueba : undefined;
+  if (assessmentId && !/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(assessmentId)) notFound();
+  const results = await getAssessmentResults({ assessmentId });
 
   return (
     <main id="principal" className="contenido">
@@ -19,7 +27,7 @@ export default async function ResultadosPage() {
       </header>
       {results.length === 0 ? (
         <p className="border-y border-borde py-8 text-sm text-gris-texto">
-          Aún no hay resultados para mostrar.
+          {assessmentId ? "Aún no hay intentos calificados para esta prueba." : "Aún no hay resultados para mostrar."}
         </p>
       ) : (
         <ul className="divide-y divide-borde border-y border-borde">
