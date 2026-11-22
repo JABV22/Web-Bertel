@@ -33,13 +33,7 @@ export function TestCard({ test }: { test: TestCardData }) {
 
       <div className="mt-auto flex items-center gap-3 pt-5">
         {isUnavailable ? (
-          <button
-            type="button"
-            disabled
-            className="cursor-not-allowed rounded-lg bg-bertel-azul px-4 py-2 text-sm font-semibold text-white/50"
-          >
-            {test.actionLabel}
-          </button>
+          <span className="text-sm text-gris-texto">{test.actionLabel}</span>
         ) : (
           <Link
             href={test.actionHref}

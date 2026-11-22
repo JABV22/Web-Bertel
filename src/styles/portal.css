@@ -23,6 +23,8 @@
   background: var(--base-calida);
 }
 .acceso__caja { width: 100%; max-width: 400px; margin-inline: auto; }
+.acceso__marca { margin-bottom: var(--e7); }
+.acceso__marca img { width: 44px; height: 44px; }
 .acceso__caja h1 { font-size: var(--t-h2); margin-bottom: var(--e3); }
 .acceso__caja > p { color: var(--texto-suave); margin-bottom: var(--e7); }
 
@@ -47,6 +49,11 @@
   right: clamp(24px,5vw,64px);
   color: #fff; font-size: var(--t-h3); font-weight: var(--peso-semi);
   letter-spacing: -.02em; max-width: 20ch;
+}
+
+@media (max-height: 720px) {
+  .acceso__aparte { align-content: center; gap: var(--e6); }
+  .acceso__lema { position: static; text-align: center; }
 }
 
 @media (max-width: 900px) {

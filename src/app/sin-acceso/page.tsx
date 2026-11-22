@@ -12,9 +12,9 @@ export default function AccessDeniedPage() {
       </p>
       <Link
         className="mt-6 inline-block font-semibold text-bertel-azul hover:underline"
-        href="/ingreso"
+        href="/"
       >
-        Volver al ingreso
+        Volver a la portada
       </Link>
     </main>
   );

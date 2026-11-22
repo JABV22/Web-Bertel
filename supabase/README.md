@@ -51,3 +51,24 @@ on conflict (user_id, role_id) do nothing;
 
 Usa `profesor` o `estudiante` para las demás cuentas. Nunca permitas que una persona seleccione o
 modifique su propio rol desde el formulario de perfil.
+
+## Revisión de intentos calificados
+
+En un entorno donde ya están aplicadas las migraciones 001 a 004, aplica las
+siguientes migraciones en orden:
+
+1. `005_graded_attempt_review.sql` instala la consulta de revisión.
+2. `006_assessment_admin_and_images.sql` instala el flujo administrativo y el
+   acceso a imágenes vinculadas en Storage.
+3. `007_graded_review_role_lookup.sql` actualiza la consulta de revisión para
+   usar las asignaciones de roles de la base directamente.
+
+Si 005 y 006 ya se aplicaron, ejecuta solo 007. Subir el código a Git no
+ejecuta estas migraciones en Supabase por sí mismo.
+
+La revisión usa `get_graded_attempt_review` para cada intento calificado. La
+seleccion y la clave se consultan por separado, de modo que una pregunta
+omitida también muestra su opción correcta cuando existe una clave en
+`private.answer_keys`. Comprueba un acierto, un error y una omisión después
+del despliegue. La clave queda reservada a revisiones autorizadas de intentos
+calificados.

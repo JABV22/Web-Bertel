@@ -22,13 +22,13 @@ export default function Footer() {
             <h4>Programas</h4>
             <ul>
               <li>
-                <a href="#programas">Saber 11</a>
+                <a href="#programa-saber-11">Saber 11</a>
               </li>
               <li>
-                <a href="#programas">Refuerzo por materias</a>
+                <a href="#programa-refuerzo">Refuerzo por materias</a>
               </li>
               <li>
-                <a href="#programas">Instituciones</a>
+                <a href="#programa-instituciones">Instituciones</a>
               </li>
             </ul>
           </div>

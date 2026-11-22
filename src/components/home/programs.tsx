@@ -12,7 +12,7 @@ export default function Programs() {
           </p>
         </div>
 
-        <article className="programa">
+        <article className="programa" id="programa-saber-11">
           <div>
             <p className="etiqueta">Programa 01</p>
             <h3 className="programa__nombre">Preparación Saber 11</h3>
@@ -112,7 +112,7 @@ export default function Programs() {
           </div>
         </article>
 
-        <article className="programa">
+        <article className="programa" id="programa-refuerzo">
           <div>
             <p className="etiqueta">Programa 02</p>
             <h3 className="programa__nombre">Refuerzo por materias</h3>
@@ -174,7 +174,7 @@ export default function Programs() {
           </div>
         </article>
 
-        <article className="programa">
+        <article className="programa" id="programa-instituciones">
           <div>
             <p className="etiqueta">Programa 03</p>
             <h3 className="programa__nombre">Instituciones y municipios</h3>

@@ -4,7 +4,7 @@ export function SummaryCards({ items }: { items: PanelSummary[] }) {
   return (
     <section
       aria-label="Resumen de actividad"
-      className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-borde bg-borde sm:grid-cols-4"
+      className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-borde bg-borde sm:grid-cols-3"
     >
       {items.map((item) => (
         <div key={item.label} className="bg-superficie px-4 py-5 sm:px-5">

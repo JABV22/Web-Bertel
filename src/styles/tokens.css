@@ -48,7 +48,7 @@
   --texto-inverso-suave: rgba(255, 255, 255, .72);
 
   /* ---------- Tipografía ---------- */
-  --fuente: "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+  --fuente: var(--font-inter, "Inter"), "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
 
   /* Escala fluida: se adapta al ancho sin cortes ni desbordamientos */
   --t-display: clamp(2.6rem, 1.2rem + 5.6vw, 6rem);

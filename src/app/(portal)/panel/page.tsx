@@ -3,13 +3,12 @@ import { EmptyHistory } from "@/components/panel/EmptyHistory";
 import { PanelHeader } from "@/components/panel/PanelHeader";
 import {
   PANEL_NOTICE,
-  PANEL_SUMMARY,
   type TestCardData,
 } from "@/components/panel/mockData";
 import { SummaryCards } from "@/components/panel/SummaryCards";
 import { TestCard } from "@/components/panel/TestCard";
 import { requireRole } from "@/services/auth";
-import { getPanelAssessments } from "@/services/assessments";
+import { getAssessmentResults, getPanelAssessments } from "@/services/assessments";
 
 export const metadata = {
   title: "Panel del estudiante",
@@ -37,20 +36,24 @@ export default async function PanelPage() {
     }`,
   };
 
-  const assessments = await getPanelAssessments();
+  const [assessments, recentResults] = await Promise.all([
+    getPanelAssessments(),
+    getAssessmentResults({ ownOnly: true }),
+  ]);
   const panelTests: TestCardData[] = assessments.map((assessment) => {
     const isInProgress = assessment.studentStatus === "in-progress";
     const isSubmitted = assessment.studentStatus === "submitted";
     const isCompleted = assessment.studentStatus === "completed";
     const canStart = roles.includes("admin") || roles.includes("estudiante");
     const isUnpublished = assessment.assessmentStatus !== "published";
+    const hasQuestions = assessment.questionCount > 0;
     const status: TestCardData["status"] = isInProgress
       ? "in-progress"
       : isSubmitted
         ? "submitted"
         : isCompleted
           ? "completed"
-          : isUnpublished || !canStart
+          : isUnpublished || !canStart || !hasQuestions
             ? "unavailable"
             : "available";
 
@@ -67,9 +70,9 @@ export default async function PanelPage() {
               ? assessment.assessmentStatus === "draft"
                 ? "Borrador"
                 : "Cerrada"
-              : canStart
-                ? "Disponible"
-                : "Solo lectura",
+              : !hasQuestions
+                ? "Sin preguntas"
+                : canStart ? "Disponible" : "Solo lectura",
       title: assessment.title,
       meta: `${assessment.questionCount} preguntas · ${assessment.durationMinutes} minutos`,
       ...(assessment.description
@@ -83,7 +86,7 @@ export default async function PanelPage() {
             ? "Ver resultados"
             : status === "unavailable"
               ? "No disponible"
-              : "Comenzar",
+              : "Ver prueba",
       actionHref:
         isInProgress && assessment.attemptId
           ? `/simulacro/${assessment.attemptId}`
@@ -91,18 +94,26 @@ export default async function PanelPage() {
             ? `/resultados/${assessment.attemptId}`
             : status === "unavailable"
               ? "#"
-              : "/simulacro",
+              : `/simulacro#prueba-${assessment.id}`,
       ...(isSubmitted || isCompleted
         ? { actionVariant: "secondary" as const }
         : {}),
     };
   });
 
+  const availableCount = assessments.filter(
+    (assessment) => assessment.assessmentStatus === "published" && assessment.questionCount > 0,
+  ).length;
+  const lastScore = recentResults[0]?.score;
   return (
     <>
       <PanelHeader {...panelStudentData} />
       <main id="principal" className="contenido">
-        <SummaryCards items={PANEL_SUMMARY} />
+        <SummaryCards items={[
+          { label: "Pruebas publicadas", value: String(availableCount) },
+          { label: "Resultados recientes", value: String(recentResults.length) },
+          { label: "Último resultado", value: lastScore == null ? "—" : `${Number(lastScore).toLocaleString("es-CO", { maximumFractionDigits: 2 })} / 500` },
+        ]} />
 
         <div
           className="mt-6 flex gap-3 rounded-lg border border-bertel-oro-100 bg-bertel-oro-100/40 px-4 py-3 text-sm leading-6 text-[#6B4E0A]"
@@ -140,7 +151,20 @@ export default async function PanelPage() {
         <div className="mb-5 mt-12 flex items-center justify-between">
           <h2 className="text-xl font-bold text-texto-fuerte">Historial</h2>
         </div>
-        <EmptyHistory />
+        {recentResults.length === 0 ? <EmptyHistory /> : (
+          <ul className="divide-y divide-borde border-y border-borde">
+            {recentResults.map((result) => (
+              <li key={result.id} className="flex flex-wrap items-center justify-between gap-2 py-4">
+                <Link href={`/resultados/${result.attemptId}`} className="font-semibold text-bertel-azul hover:underline">
+                  {result.title}
+                </Link>
+                <span className="text-sm text-gris-texto">
+                  {Number(result.score).toLocaleString("es-CO", { maximumFractionDigits: 2 })} / 500
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </main>
     </>
   );

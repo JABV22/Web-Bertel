@@ -15,6 +15,7 @@ const eslintConfig = defineConfig([
     // Referencia visual en HTML/CSS/JS plano, fuera de la app Next.js.
     // Se conserva como documentación de diseño (docs/DISENO.md).
     "prototipo/**",
+    "src/prototipo/**",
   ]),
 ]);
 

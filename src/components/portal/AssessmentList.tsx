@@ -48,7 +48,11 @@ export function AssessmentList({ assessments }: { assessments: Assessment[] }) {
       ) : (
         <ul className="divide-y divide-borde border-y border-borde">
           {assessments.map((assessment) => (
-            <li className="flex flex-wrap items-center justify-between gap-5 py-5" key={assessment.id}>
+            <li
+              className="flex flex-wrap items-center justify-between gap-5 rounded-lg px-3 py-5 target:bg-superficie-alt"
+              id={`prueba-${assessment.id}`}
+              key={assessment.id}
+            >
               <div className="min-w-0 flex-1">
                 <h2 className="font-semibold text-texto-fuerte">{assessment.title}</h2>
                 {assessment.description && <p className="mt-1 text-sm text-gris-texto">{assessment.description}</p>}
@@ -56,27 +60,20 @@ export function AssessmentList({ assessments }: { assessments: Assessment[] }) {
                   {assessment.questionCount} preguntas · {assessment.durationMinutes} minutos · {assessment.status}
                 </p>
               </div>
-              <button
-                className="btn btn--sm"
-                type="button"
-                disabled={
-                  startingId !== null ||
-                  !assessment.canStart ||
-                  assessment.status !== "published" ||
-                  assessment.questionCount === 0
-                }
-                onClick={() => void startAssessment(assessment.id)}
-              >
-                {startingId === assessment.id
-                  ? "Iniciando…"
-                  : assessment.status !== "published"
-                    ? "No disponible"
-                    : !assessment.canStart
-                      ? "Solo lectura"
-                      : assessment.questionCount === 0
-                        ? "Sin preguntas"
-                        : "Comenzar"}
-              </button>
+              {assessment.status !== "published" || !assessment.canStart || assessment.questionCount === 0 ? (
+                <span className="text-sm text-gris-texto">
+                  {assessment.status !== "published" ? "No disponible" : !assessment.canStart ? "Solo lectura" : "Sin preguntas"}
+                </span>
+              ) : (
+                <button
+                  className="btn btn--sm"
+                  type="button"
+                  disabled={startingId !== null}
+                  onClick={() => void startAssessment(assessment.id)}
+                >
+                  {startingId === assessment.id ? "Iniciando…" : "Comenzar"}
+                </button>
+              )}
             </li>
           ))}
         </ul>

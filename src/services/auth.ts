@@ -1,3 +1,4 @@
+import { cache } from "react";
 import type { User } from "@supabase/supabase-js";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
@@ -26,7 +27,7 @@ export async function getCurrentUser(): Promise<User | null> {
   return user;
 }
 
-export async function requireRole(allowedRoles: readonly BertelRole[]) {
+const getPortalAccess = cache(async () => {
   const supabase = await createClient();
   const {
     data: { user },
@@ -68,9 +69,6 @@ export async function requireRole(allowedRoles: readonly BertelRole[]) {
     return role.name;
   });
 
-  if (!roleNames.includes("admin") && !allowedRoles.some((role) => roleNames.includes(role))) {
-    redirect("/sin-acceso");
-  }
   const profileWithEnrollments = {
     ...profile,
     courseEnrollments: (courseEnrollments ?? []) as unknown as CourseEnrollment[],
@@ -83,4 +81,12 @@ export async function requireRole(allowedRoles: readonly BertelRole[]) {
     profile: profileWithEnrollments,
     courseEnrollments,
   };
+});
+
+export async function requireRole(allowedRoles: readonly BertelRole[]) {
+  const access = await getPortalAccess();
+  if (!access.roles.includes("admin") && !allowedRoles.some((role) => access.roles.includes(role))) {
+    redirect("/sin-acceso");
+  }
+  return access;
 }

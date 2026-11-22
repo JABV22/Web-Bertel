@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panel del estudiante — Preicfés Bertel</title>
+<link rel="icon" href="../assets/logo-bertel.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/tokens.css">
+<link rel="stylesheet" href="../css/base.css">
+<link rel="stylesheet" href="../css/portal.css">
+<!-- Sin js/escena.js -->
+</head>
+<body>
+
+<a class="saltar" href="#principal">Saltar al contenido</a>
+
+<div class="aviso-demo" role="note">
+  <strong>Prototipo visual.</strong> Datos de demostración. Sin persistencia ni permisos:
+  se implementan en las Fases 2 y 5.
+</div>
+
+<div class="portal">
+
+  <nav class="lateral" aria-label="Portal">
+    <a class="marca" href="../index.html">
+      <img src="../assets/logo-bertel.png" alt="">
+      <span class="marca__texto">Preicfés Bertel<span>Portal</span></span>
+    </a>
+
+    <ul class="menu-lateral">
+      <li><a href="panel.html" aria-current="page">Inicio</a></li>
+      <li><a href="simulacro.html">Mis pruebas</a></li>
+      <li><a href="resultados.html">Resultados</a></li>
+      <li><a href="administracion.html">Administración</a></li>
+    </ul>
+
+    <p class="lateral__pie">Prototipo — Fase de diseño</p>
+  </nav>
+
+  <div class="principal">
+    <header class="barra-sup">
+      <h1>Hola, estudiante</h1>
+      <span class="pastilla">Grado 11</span>
+      <span class="avatar" aria-hidden="true">ES</span>
+    </header>
+
+    <main class="contenido" id="principal">
+
+      <section class="resumen" aria-label="Resumen de actividad">
+        <div class="resumen__dato">
+          <p class="resumen__valor">—</p>
+          <p class="resumen__nombre">Pruebas disponibles</p>
+        </div>
+        <div class="resumen__dato">
+          <p class="resumen__valor">—</p>
+          <p class="resumen__nombre">Simulacros realizados</p>
+        </div>
+        <div class="resumen__dato">
+          <p class="resumen__valor">—</p>
+          <p class="resumen__nombre">Promedio propio</p>
+        </div>
+        <div class="resumen__dato">
+          <p class="resumen__valor">—</p>
+          <p class="resumen__nombre">Último resultado</p>
+        </div>
+      </section>
+
+      <div class="alerta alerta--info">
+        <span aria-hidden="true">ℹ</span>
+        <span>
+          Las cifras aparecen vacías a propósito: la fórmula de calificación y las reglas
+          de disponibilidad se definen en el PRD, que todavía no está disponible.
+        </span>
+      </div>
+
+      <div class="titulo-bloque">
+        <h2>Pruebas disponibles</h2>
+        <a class="enlace-flecha" href="simulacro.html">Ver todas </a>
+      </div>
+
+      <section class="rejilla-tarjetas">
+
+        <article class="tarjeta tarjeta-prueba">
+          <span class="pastilla pastilla--acento" style="align-self:start;margin-bottom:var(--e3)">Disponible</span>
+          <h3>Simulacro Saber 11 — N.º 3</h3>
+          <p class="tarjeta-prueba__meta">50 preguntas · Tiempo por confirmar</p>
+          <p style="font-size:var(--t-pequeno);color:var(--texto-suave)">
+            Prueba completa con los cinco componentes evaluados.
+          </p>
+          <div class="tarjeta-prueba__pie">
+            <a class="btn btn--sm" href="simulacro.html">Iniciar</a>
+            <span class="ayuda">Intentos: por confirmar</span>
+          </div>
+        </article>
+
+        <article class="tarjeta tarjeta-prueba">
+          <span class="pastilla" style="align-self:start;margin-bottom:var(--e3)">En curso</span>
+          <h3>Refuerzo — Lectura crítica</h3>
+          <p class="tarjeta-prueba__meta">20 preguntas · Reanudable</p>
+          <div class="barra" style="margin-block:var(--e3)"><div class="barra__valor" style="width:45%"></div></div>
+          <p style="font-size:var(--t-micro);color:var(--texto-suave)">9 de 20 respondidas</p>
+          <div class="tarjeta-prueba__pie">
+            <a class="btn btn--sm" href="simulacro.html">Continuar</a>
+          </div>
+        </article>
+
+        <article class="tarjeta tarjeta-prueba">
+          <span class="pastilla pastilla--exito" style="align-self:start;margin-bottom:var(--e3)">Finalizada</span>
+          <h3>Simulacro Saber 11 — N.º 2</h3>
+          <p class="tarjeta-prueba__meta">50 preguntas · Revisión disponible</p>
+          <p style="font-size:var(--t-pequeno);color:var(--texto-suave)">
+            Resultado y explicaciones liberados.
+          </p>
+          <div class="tarjeta-prueba__pie">
+            <a class="btn btn--sm btn--linea" href="resultados.html">Ver resultado</a>
+          </div>
+        </article>
+
+        <article class="tarjeta tarjeta-prueba">
+          <span class="pastilla" style="align-self:start;margin-bottom:var(--e3)">No disponible</span>
+          <h3>Simulacro Saber 11 — N.º 4</h3>
+          <p class="tarjeta-prueba__meta">Se habilita según la programación del curso</p>
+          <div class="tarjeta-prueba__pie">
+            <button class="btn btn--sm" type="button" disabled>Iniciar</button>
+          </div>
+        </article>
+
+      </section>
+
+      <div class="titulo-bloque" style="margin-top:var(--e8)">
+        <h2>Historial</h2>
+      </div>
+
+      <div class="estado-vacio">
+        <h3>Todavía no hay historial</h3>
+        <p style="max-width:44ch">
+          Cuando termines una prueba, aquí aparecerán tus intentos con su fecha,
+          puntuación y desglose por componente.
+        </p>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+</body>
+</html>
