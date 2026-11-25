@@ -38,6 +38,15 @@ const getPortalAccess = cache(async () => {
     redirect("/ingreso");
   }
 
+  const enrollments = () => supabase.from("course_enrollments")
+    .select("course_id, group_id, status, courses!inner(id, name, status, program_id, academic_period_id)")
+    .eq("student_id", user.id)
+    .in("status", ["matriculado", "semimatriculado"]);
+  const loadEnrollments = async () => {
+    const result = await enrollments().eq("portal_access_enabled", true);
+    return result.error?.code === "42703" ? enrollments() : result;
+  };
+
   const [
     { data: profile, error: profileError },
     { data: userRoles, error: rolesError },
@@ -49,12 +58,7 @@ const getPortalAccess = cache(async () => {
       .eq("id", user.id)
       .single(),
     supabase.from("user_roles").select("roles!inner(name)").eq("user_id", user.id),
-    supabase
-      .from("course_enrollments")
-      .select(
-        "course_id, group_id, status, courses!inner(id, name, status, program_id, academic_period_id)",
-      )
-      .eq("student_id", user.id),
+    loadEnrollments(),
   ]);
 
   if (rolesError || coursesError) {
