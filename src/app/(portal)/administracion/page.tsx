@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { AdministrationView } from "@/components/portal/AdministrationView";
 import { PortalTopbar } from "@/components/portal/PortalTopbar";
 import { getAdminAssessments } from "@/services/assessments";
@@ -24,7 +25,9 @@ export default async function AdministracionPage({
 
   return (
     <>
-      <PortalTopbar title="Pruebas" initials="AD" />
+      <PortalTopbar title="Pruebas" initials="AD" action={
+        <Link className="btn btn--sm" href="/administracion/usuarios">Gestionar usuarios</Link>
+      } />
       <AdministrationView assessments={filtered} sources={assessments.filter((item) => item.questionCount > 0)} search={search} status={status} />
     </>
   );

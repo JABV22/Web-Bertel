@@ -72,3 +72,32 @@ omitida también muestra su opción correcta cuando existe una clave en
 `private.answer_keys`. Comprueba un acierto, un error y una omisión después
 del despliegue. La clave queda reservada a revisiones autorizadas de intentos
 calificados.
+
+## Gestión de usuarios
+
+Aplica `008_admin_user_management.sql` después de 007 y antes de desplegar la
+pantalla **Administración > Gestionar usuarios**. Conserva las matrículas y los
+resultados existentes al deshabilitar accesos.
+
+Para enviar invitaciones, configura `SUPABASE_SERVICE_ROLE_KEY` como variable
+privada del servidor y `NEXT_PUBLIC_SITE_URL` con el dominio de la aplicación.
+La clave de servicio solo se usa en la acción de registro del servidor.
+Configura SMTP en Supabase Auth y agrega la URL completa
+`https://TU-DOMINIO/auth/confirmar` a **Redirect URLs**. En **Email Templates >
+Invite user**, usa el siguiente enlace en la plantilla:
+
+```html
+<a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&amp;type=invite">Activa tu cuenta</a>
+```
+
+Cada cuenta nueva necesita asignación individual para presentar simulacros.
+Las cuentas anteriores mantienen su acceso a pruebas publicadas hasta que se
+configure una excepción. Los profesores conservan el permiso de revisión académica,
+que puede deshabilitarse por simulacro. Las claves de intentos se consultan
+solo al revisar intentos calificados y autorizados.
+
+Habilitar un curso para un estudiante sin matrícula crea una prematrícula.
+Matricular cambia su estado a `matriculado`. Deshabilitar conserva el estado
+de matrícula y retira el acceso del portal. Para profesores, la asignación
+usa la relación docente del curso. Un permiso de simulacro requiere que la
+prueba esté publicada para empezar o reanudar un intento.

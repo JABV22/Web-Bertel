@@ -1,5 +1,18 @@
 import { requireRole } from "@/services/auth";
 
+async function getEnabledAssessments(supabase: Awaited<ReturnType<typeof requireRole>>["supabase"]) {
+  const { data, error } = await supabase.rpc("bertel_available_assessments");
+  if (error?.code === "PGRST202") return null;
+  if (error) throw new Error("No fue posible verificar el acceso a las evaluaciones.");
+  return new Set<string>((data ?? []).map((row: { id: string }) => row.id));
+}
+
+async function getDisabledAssessments(supabase: Awaited<ReturnType<typeof requireRole>>["supabase"]) {
+  const { data, error } = await supabase.rpc("bertel_disabled_assessments");
+  if (error && error.code !== "PGRST202") throw new Error("No fue posible verificar el acceso a la revisión.");
+  return new Set<string>((data ?? []).map((row: { id: string }) => row.id));
+}
+
 export async function getAvailableAssessments() {
   const { supabase, roles } = await requireRole([
     "estudiante",
@@ -15,17 +28,25 @@ export async function getAvailableAssessments() {
     query = query.eq("status", "published");
   }
 
-  const { data, error } = await query;
+  const [{ data, error }, enabled, disabled] = await Promise.all([
+    query,
+    getEnabledAssessments(supabase),
+    roles.includes("profesor") && !roles.includes("admin") ? getDisabledAssessments(supabase) : null,
+  ]);
   if (error) throw new Error("No fue posible cargar las evaluaciones disponibles.");
 
-  return (data ?? []).map((assessment) => ({
+  const staff = roles.includes("admin") || roles.includes("profesor");
+  return (data ?? [])
+    .filter((assessment) => staff || enabled === null || enabled.has(assessment.id))
+    .map((assessment) => ({
     id: assessment.id,
     title: assessment.title,
     description: assessment.description,
     durationMinutes: assessment.duration_minutes,
     status: assessment.status,
-    canReview: roles.includes("profesor") || roles.includes("admin"),
-    canStart: roles.includes("admin") || roles.includes("estudiante"),
+    canReview: roles.includes("admin") || (roles.includes("profesor") && !disabled?.has(assessment.id)),
+    canStart: (roles.includes("admin") || roles.includes("estudiante")) &&
+      (enabled === null || enabled.has(assessment.id)),
     questionCount: new Set(
       (assessment.assessment_questions ?? []).map((item) => item.question_id),
     ).size,
@@ -50,7 +71,10 @@ export async function getPanelAssessments() {
     assessmentsQuery = assessmentsQuery.eq("status", "published");
   }
 
-  const { data: assessments, error: assessmentsError } = await assessmentsQuery;
+  const [{ data: assessments, error: assessmentsError }, enabled] = await Promise.all([
+    assessmentsQuery,
+    getEnabledAssessments(supabase),
+  ]);
 
   if (assessmentsError) {
     throw new Error("No fue posible cargar las evaluaciones del panel.");
@@ -99,6 +123,7 @@ export async function getPanelAssessments() {
         ),
       ).size,
       attemptId: attempt?.id ?? null,
+      accessEnabled: enabled === null || enabled.has(assessment.id),
       attemptStatus: attempt?.status ?? null,
       studentStatus:
         attempt?.status === "en_progreso"
@@ -171,8 +196,10 @@ const questionContent = `
 `;
 
 export async function getAssessmentForReview(assessmentId: string) {
-  const { supabase } = await requireRole(["profesor", "admin"]);
+  const { supabase, roles } = await requireRole(["profesor", "admin"]);
   if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(assessmentId)) return null;
+
+  if (!roles.includes("admin") && (await getDisabledAssessments(supabase)).has(assessmentId)) return null;
 
   const { data, error } = await supabase
     .from("assessments")
@@ -246,6 +273,14 @@ export async function getAttempt(attemptId: string) {
 
   let savedAnswers: Array<{ question_id: string; selected_option_id: string | null }> = [];
   if (data.status === "en_progreso") {
+    const assessment = data.assessment as unknown as { id: string };
+    const { data: allowed, error: accessError } = await supabase.rpc("bertel_can_access_assessment", {
+      p_assessment: assessment.id,
+    });
+    if (accessError && accessError.code !== "PGRST202") {
+      throw new Error("No fue posible verificar el acceso al simulacro.");
+    }
+    if (!accessError && allowed !== true) return null;
     const { data: answerData, error: answersError } = await supabase.rpc("get_attempt_answers", {
       p_attempt_id: attemptId,
     });

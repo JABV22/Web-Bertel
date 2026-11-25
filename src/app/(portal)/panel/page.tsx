@@ -41,10 +41,10 @@ export default async function PanelPage() {
     getAssessmentResults({ ownOnly: true }),
   ]);
   const panelTests: TestCardData[] = assessments.map((assessment) => {
-    const isInProgress = assessment.studentStatus === "in-progress";
+    const isInProgress = assessment.studentStatus === "in-progress" && assessment.accessEnabled;
     const isSubmitted = assessment.studentStatus === "submitted";
     const isCompleted = assessment.studentStatus === "completed";
-    const canStart = roles.includes("admin") || roles.includes("estudiante");
+    const canStart = assessment.accessEnabled && (roles.includes("admin") || roles.includes("estudiante"));
     const isUnpublished = assessment.assessmentStatus !== "published";
     const hasQuestions = assessment.questionCount > 0;
     const status: TestCardData["status"] = isInProgress
@@ -72,7 +72,7 @@ export default async function PanelPage() {
                 : "Cerrada"
               : !hasQuestions
                 ? "Sin preguntas"
-                : canStart ? "Disponible" : "Solo lectura",
+                : canStart ? "Disponible" : !assessment.accessEnabled ? "Acceso deshabilitado" : "Solo lectura",
       title: assessment.title,
       meta: `${assessment.questionCount} preguntas · ${assessment.durationMinutes} minutos`,
       ...(assessment.description
@@ -102,7 +102,7 @@ export default async function PanelPage() {
   });
 
   const availableCount = assessments.filter(
-    (assessment) => assessment.assessmentStatus === "published" && assessment.questionCount > 0,
+    (assessment) => assessment.assessmentStatus === "published" && assessment.accessEnabled && assessment.questionCount > 0,
   ).length;
   const lastScore = recentResults[0]?.score;
   return (

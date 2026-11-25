@@ -14,6 +14,9 @@ export async function startAssessmentAction(assessmentId: string) {
     p_assessment_id: assessmentId,
   });
 
+  if (error?.message === "ASSESSMENT_ACCESS_DISABLED") {
+    return { ok: false as const, message: "El acceso a este simulacro está deshabilitado." };
+  }
   if (error || !data) {
     return { ok: false as const, message: "No fue posible iniciar la evaluación." };
   }
@@ -46,6 +49,9 @@ export async function saveAssessmentAnswerAction(input: {
     p_selected_option_id: input.selectedOptionId,
   });
 
+  if (error?.message === "ASSESSMENT_ACCESS_DISABLED") {
+    return { ok: false as const, message: "El acceso a este simulacro está deshabilitado." };
+  }
   if (error) {
     return { ok: false as const, message: "No se pudo guardar la respuesta. Intenta de nuevo." };
   }
@@ -63,6 +69,9 @@ export async function submitAssessmentAction(attemptId: string) {
     p_attempt_id: attemptId,
   });
 
+  if (error?.message === "ASSESSMENT_ACCESS_DISABLED") {
+    return { ok: false as const, message: "El acceso a este simulacro está deshabilitado." };
+  }
   if (error || !data) {
     return { ok: false as const, message: "No fue posible confirmar la entrega." };
   }
