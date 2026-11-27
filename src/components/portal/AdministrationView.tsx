@@ -78,7 +78,7 @@ export function AdministrationView({
                   </span>
                 </td>
                 <td>
-                  <Link className="btn btn--sm btn--linea mb-2" href={`/simulacro/revision/${assessment.id}`}>
+                  <Link prefetch={false} className="btn btn--sm btn--linea mb-2" href={`/simulacro/revision/${assessment.id}`}>
                     Revisar simulacro
                   </Link>
                   {assessment.status === "draft" && <PublishForm assessmentId={assessment.id} />}

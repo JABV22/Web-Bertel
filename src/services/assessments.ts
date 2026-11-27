@@ -1,3 +1,4 @@
+import { isControlledAssessment } from "@/services/controlled-assessments";
 import { requireRole } from "@/services/auth";
 
 async function getEnabledAssessments(supabase: Awaited<ReturnType<typeof requireRole>>["supabase"]) {
@@ -38,6 +39,7 @@ export async function getAvailableAssessments() {
   const admin = roles.includes("admin");
   const student = roles.includes("estudiante");
   return (data ?? [])
+    .filter((assessment) => admin || !isControlledAssessment(assessment.id))
     .filter((assessment) => admin || reviewPermissions?.has(assessment.id) ||
       (student && (enabled === null || enabled.has(assessment.id))))
     .map((assessment) => ({
@@ -82,7 +84,8 @@ export async function getPanelAssessments() {
     throw new Error("No fue posible cargar las evaluaciones del panel.");
   }
 
-  const assessmentIds = (assessments ?? []).map((assessment) => assessment.id);
+  const visible = (assessments ?? []).filter((item) => roles.includes("admin") || !isControlledAssessment(item.id));
+  const assessmentIds = visible.map((assessment) => assessment.id);
 
   const { data: attempts, error: attemptsError } =
     assessmentIds.length > 0
@@ -110,7 +113,7 @@ export async function getPanelAssessments() {
     }
   }
 
-  return (assessments ?? []).map((assessment) => {
+  return visible.map((assessment) => {
     const attempt = latestAttemptByAssessment.get(assessment.id) ?? null;
 
     return {
@@ -201,7 +204,7 @@ export async function getAssessmentForReview(assessmentId: string) {
   const { supabase, roles } = await requireRole(["profesor", "admin"]);
   if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(assessmentId)) return null;
 
-  if (!roles.includes("admin") && !(await getTeacherPreviewPermissions(supabase)).has(assessmentId)) return null;
+  if (!roles.includes("admin") && (isControlledAssessment(assessmentId) || !(await getTeacherPreviewPermissions(supabase)).has(assessmentId))) return null;
 
   const { data, error } = await supabase
     .from("assessments")

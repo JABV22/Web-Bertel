@@ -1,5 +1,6 @@
 "use server";
 
+import { isControlledAssessment } from "@/services/controlled-assessments";
 import { requireRole } from "@/services/auth";
 
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -9,7 +10,10 @@ export async function startAssessmentAction(assessmentId: string) {
     return { ok: false as const, message: "La evaluación solicitada no es válida." };
   }
 
-  const { supabase } = await requireRole(["estudiante"]);
+  const { supabase, roles } = await requireRole(["estudiante"]);
+  if (isControlledAssessment(assessmentId) && !roles.includes("admin")) {
+    return { ok: false as const, message: "El acceso a este simulacro está deshabilitado." };
+  }
   const { data, error } = await supabase.rpc("start_assessment", {
     p_assessment_id: assessmentId,
   });
