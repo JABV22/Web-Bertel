@@ -7,9 +7,9 @@ async function getEnabledAssessments(supabase: Awaited<ReturnType<typeof require
   return new Set<string>((data ?? []).map((row: { id: string }) => row.id));
 }
 
-async function getDisabledAssessments(supabase: Awaited<ReturnType<typeof requireRole>>["supabase"]) {
-  const { data, error } = await supabase.rpc("bertel_disabled_assessments");
-  if (error && error.code !== "PGRST202") throw new Error("No fue posible verificar el acceso a la revisión.");
+async function getTeacherPreviewPermissions(supabase: Awaited<ReturnType<typeof requireRole>>["supabase"]) {
+  const { data, error } = await supabase.rpc("bertel_teacher_preview_permissions");
+  if (error && error.code !== "PGRST202") throw new Error("No fue posible verificar el permiso de revisión.");
   return new Set<string>((data ?? []).map((row: { id: string }) => row.id));
 }
 
@@ -28,23 +28,25 @@ export async function getAvailableAssessments() {
     query = query.eq("status", "published");
   }
 
-  const [{ data, error }, enabled, disabled] = await Promise.all([
+  const [{ data, error }, enabled, reviewPermissions] = await Promise.all([
     query,
     getEnabledAssessments(supabase),
-    roles.includes("profesor") && !roles.includes("admin") ? getDisabledAssessments(supabase) : null,
+    roles.includes("profesor") && !roles.includes("admin") ? getTeacherPreviewPermissions(supabase) : null,
   ]);
   if (error) throw new Error("No fue posible cargar las evaluaciones disponibles.");
 
-  const staff = roles.includes("admin") || roles.includes("profesor");
+  const admin = roles.includes("admin");
+  const student = roles.includes("estudiante");
   return (data ?? [])
-    .filter((assessment) => staff || enabled === null || enabled.has(assessment.id))
+    .filter((assessment) => admin || reviewPermissions?.has(assessment.id) ||
+      (student && (enabled === null || enabled.has(assessment.id))))
     .map((assessment) => ({
     id: assessment.id,
     title: assessment.title,
     description: assessment.description,
     durationMinutes: assessment.duration_minutes,
     status: assessment.status,
-    canReview: roles.includes("admin") || (roles.includes("profesor") && !disabled?.has(assessment.id)),
+    canReview: roles.includes("admin") || (roles.includes("profesor") && reviewPermissions?.has(assessment.id) === true),
     canStart: (roles.includes("admin") || roles.includes("estudiante")) &&
       (enabled === null || enabled.has(assessment.id)),
     questionCount: new Set(
@@ -199,7 +201,7 @@ export async function getAssessmentForReview(assessmentId: string) {
   const { supabase, roles } = await requireRole(["profesor", "admin"]);
   if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(assessmentId)) return null;
 
-  if (!roles.includes("admin") && (await getDisabledAssessments(supabase)).has(assessmentId)) return null;
+  if (!roles.includes("admin") && !(await getTeacherPreviewPermissions(supabase)).has(assessmentId)) return null;
 
   const { data, error } = await supabase
     .from("assessments")
@@ -209,6 +211,15 @@ export async function getAssessmentForReview(assessmentId: string) {
 
   if (error) throw new Error("No fue posible cargar la prueba para revisar.");
   if (!data) return null;
+
+  const { data: keyRows, error: keysError } = await supabase.rpc("bertel_preview_answer_keys", {
+    p_assessment: assessmentId,
+  });
+  if (keysError?.code === "42501") return null;
+  if (keysError && keysError.code !== "PGRST202") throw new Error("No fue posible cargar las claves de la prueba.");
+  const keys = new Map<string, string>(
+    (keyRows ?? []).map((row: { question_id: string; correct_option_id: string }) => [row.question_id, row.correct_option_id]),
+  );
 
   const rows = (data.assessment_questions ?? []) as unknown as Array<{
     question_order: number;
@@ -228,6 +239,7 @@ export async function getAssessmentForReview(assessmentId: string) {
         id: question.id,
         order: question_order,
         statement: question.statement,
+        correctOptionId: keys.get(question.id) ?? null,
         assets: await loadQuestionImages(supabase, question.question_assets ?? []),
         options: (question.question_options ?? []).toSorted((a, b) => a.position - b.position),
       };
@@ -527,8 +539,7 @@ export async function getAttemptResult(attemptId: string) {
       if (!question) return [];
       const answer = answersByQuestion.get(question.id);
       const selectedOptionId = answer?.selected_option_id ?? null;
-      const correctOptionId = answer?.correct_option_id ??
-        (answer?.is_correct === true ? selectedOptionId : null);
+      const correctOptionId = answer?.correct_option_id ?? null;
       const isCorrect = correctOptionId && selectedOptionId
         ? selectedOptionId === correctOptionId
         : answer?.is_correct ?? null;

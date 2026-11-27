@@ -101,3 +101,13 @@ Matricular cambia su estado a `matriculado`. Deshabilitar conserva el estado
 de matrícula y retira el acceso del portal. Para profesores, la asignación
 usa la relación docente del curso. Un permiso de simulacro requiere que la
 prueba esté publicada para empezar o reanudar un intento.
+
+## Revisión previa de simulacros
+
+Aplica `009_teacher_preview_permissions.sql` después de 008. Administración
+puede revisar cualquier simulacro con su clave desde el listado de pruebas.
+En **Gestionar usuarios**, el permiso de revisión previa se concede por
+profesor y simulacro, independientemente de la asignación a estudiantes.
+Los permisos explícitos ya concedidos a docentes se conservan. Los demás
+simulacros requieren una concesión expresa para que un profesor vea sus claves
+antes de que existan intentos.

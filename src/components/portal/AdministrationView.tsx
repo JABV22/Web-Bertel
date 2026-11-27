@@ -77,7 +77,12 @@ export function AdministrationView({
                     {statusLabels[assessment.status] ?? assessment.status}
                   </span>
                 </td>
-                <td>{assessment.status === "draft" && <PublishForm assessmentId={assessment.id} />}</td>
+                <td>
+                  <Link className="btn btn--sm btn--linea mb-2" href={`/simulacro/revision/${assessment.id}`}>
+                    Revisar simulacro
+                  </Link>
+                  {assessment.status === "draft" && <PublishForm assessmentId={assessment.id} />}
+                </td>
               </tr>
             ))}
           </tbody>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { QuestionImages } from "@/components/portal/QuestionImages";
-import { optionLetter } from "@/components/portal/QuestionAnswerSummary";
+import { ReviewOptions } from "@/components/portal/ReviewOptions";
 import { getAssessmentForReview } from "@/services/assessments";
 
 export const metadata = { title: "Revisar prueba" };
@@ -23,6 +23,7 @@ export default async function AssessmentReviewPage({
       <header className="my-6 border-b border-borde pb-5">
         <p className="text-sm text-gris-texto">Revisión de la prueba</p>
         <h1>{assessment.title}</h1>
+        <p className="mt-2 text-sm text-gris-texto">Vista previa del simulacro y sus claves de corrección.</p>
         <Link className="btn btn--sm btn--linea mt-4" href={`/resultados?prueba=${assessment.id}`}>
           Ver intentos calificados
         </Link>
@@ -36,14 +37,7 @@ export default async function AssessmentReviewPage({
               <h2 className="mb-3 text-lg font-bold">Pregunta {question.order}</h2>
               <p className="whitespace-pre-wrap break-words">{question.statement}</p>
               <QuestionImages assets={question.assets} />
-              <ul className="mt-4 grid gap-2">
-                {question.options.map((option, index) => (
-                  <li key={option.id} className="rounded-lg border border-borde px-3 py-2">
-                    <strong>{optionLetter(index)}.</strong>
-                    {option.option_text !== optionLetter(index) && ` ${option.option_text}`}
-                  </li>
-                ))}
-              </ul>
+              <ReviewOptions options={question.options} correctOptionId={question.correctOptionId} />
             </li>
           ))}
         </ol>

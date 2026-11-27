@@ -27,6 +27,13 @@ export default async function AdminUsersPage({
     ? await supabase.rpc("bertel_admin_user_access", { p_user: selected.id })
     : null;
 
+  const teacherPermissions = selected?.roles.includes("profesor")
+    ? await supabase.rpc("bertel_teacher_preview_permissions", { p_teacher: selected.id })
+    : null;
+  const reviewable = teacherPermissions && !teacherPermissions.error
+    ? (teacherPermissions.data ?? []).map((item: { id: string }) => item.id)
+    : null;
+
   return (
     <>
       <PortalTopbar title="Usuarios" initials="AD" />
@@ -73,7 +80,7 @@ export default async function AdminUsersPage({
                   <p className="mt-2 text-sm text-gris-texto">Cédula {selected.document_number || "sin registrar"}</p>
                   {access?.error ? <p role="alert">No se pudieron consultar los accesos.</p> : access?.data && (
                     <UserManagementForms key={selected.id} userId={selected.id} roles={selected.roles}
-                      canChangeRole={selected.id !== user.id} access={access.data as UserAccess} />
+                      canChangeRole={selected.id !== user.id} access={access.data as UserAccess} reviewable={reviewable} />
                   )}
                 </section>
               )}

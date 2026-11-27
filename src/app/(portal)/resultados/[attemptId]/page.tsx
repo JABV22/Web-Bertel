@@ -1,4 +1,4 @@
-import { optionLetter } from "@/components/portal/QuestionAnswerSummary";
+import { ReviewOptions } from "@/components/portal/ReviewOptions";
 import { QuestionImages } from "@/components/portal/QuestionImages";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -131,37 +131,11 @@ export default async function AttemptResultPage({
                 </div>
                 <p className="whitespace-pre-wrap break-words text-texto">{question.statement}</p>
                 <QuestionImages assets={question.assets} />
-                <ul className="mt-4 grid gap-2">
-                  {question.options.map((option, index) => {
-                    const selected = option.id === question.selectedOptionId;
-                    const correct = option.id === question.correctOptionId;
-                    return (
-                      <li
-                        key={option.id}
-                        className={`flex flex-wrap items-center justify-between gap-x-4 gap-y-2 rounded-lg border px-3 py-2 ${correct ? "border-exito bg-exito/10" : selected ? "border-bertel-azul bg-superficie-alt" : "border-borde"}`}
-                      >
-                        <span className="min-w-0 whitespace-pre-wrap break-words">
-                          <span className="font-bold">{optionLetter(index)}.</span>
-                          {option.option_text !== optionLetter(index) && ` ${option.option_text}`}
-                        </span>
-                        {(selected || correct) && (
-                          <span className="flex flex-wrap gap-2">
-                            {selected && (
-                              <span className="rounded-full bg-bertel-azul px-2 py-1 text-xs font-semibold text-white">
-                                Respuesta marcada
-                              </span>
-                            )}
-                            {correct && (
-                              <span className="rounded-full bg-exito px-2 py-1 text-xs font-semibold text-white">
-                                Respuesta correcta
-                              </span>
-                            )}
-                          </span>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
+                <ReviewOptions
+                  options={question.options}
+                  correctOptionId={question.correctOptionId}
+                  selectedOptionId={question.selectedOptionId}
+                />
               </li>
             ))}
           </ol>

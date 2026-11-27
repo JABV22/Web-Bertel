@@ -294,15 +294,429 @@ begin
 end;
 $$;
 
--- Keep the installed attempt implementation and enforce access before calling it.
-do $$
+-- Install the existing exam behavior if the target is missing its RPCs.
+create or replace function private.bertel_is_assessment_user(p_user uuid)
+returns boolean language sql stable security definer set search_path = ''
+as $$
+  select exists (
+    select 1 from public.profiles p
+    join public.user_roles ur on ur.user_id = p.id
+    join public.roles r on r.id = ur.role_id
+    where p.id = p_user and p.status = 'active' and r.name in ('admin', 'estudiante')
+  );
+$$;
+
+revoke all on function private.bertel_is_assessment_user(uuid) from public, anon, authenticated;
+
+do $install$
 begin
-  if to_regprocedure('private.bertel_start_assessment_legacy(uuid)') is null then
-    alter function public.start_assessment(uuid) rename to bertel_start_assessment_legacy;
-    alter function public.bertel_start_assessment_legacy(uuid) set schema private;
+  if to_regprocedure('public.submit_assessment_attempt(uuid)') is null then
+    execute $definition$
+create or replace function public.submit_assessment_attempt(p_attempt_id uuid)
+returns jsonb language plpgsql security definer set search_path = ''
+as $$
+declare
+  current_user_id uuid := auth.uid();
+  attempt_row public.assessment_attempts%rowtype;
+  question_total integer;
+  answered_total integer;
+  correct_total integer;
+  invalid_key_total integer;
+  missing_weight_total integer;
+  unassigned_question_total integer;
+  weight_total numeric;
+  weighted_area_total numeric;
+  estimated_score numeric(7, 2);
+begin
+  if current_user_id is null or not private.bertel_is_assessment_user(current_user_id) then
+    raise exception 'NOT_AUTHORIZED' using errcode = '42501';
   end if;
+
+  select * into attempt_row
+  from public.assessment_attempts
+  where id = p_attempt_id
+    and (student_id = current_user_id or private.is_bertel_admin())
+  for update;
+
+  if not found then
+    raise exception 'ATTEMPT_NOT_FOUND' using errcode = 'P0002';
+  end if;
+
+  if attempt_row.status = 'clasificado' then
+    if not exists (
+      select 1
+      from public.assessment_results as result
+      where result.attempt_id = attempt_row.id
+    ) then
+      raise exception 'ATTEMPT_RESULT_NOT_FOUND' using errcode = 'P0002';
+    end if;
+
+    return (
+      select jsonb_build_object(
+        'attempt_id', attempt_row.id,
+        'status', attempt_row.status,
+        'result', jsonb_build_object(
+          'score', result.total_score,
+          'correct_count', result.correct_count,
+          'incorrect_count', result.incorrect_count,
+          'unanswered_count', result.unanswered_count
+        )
+      )
+      from public.assessment_results as result
+      where result.attempt_id = attempt_row.id
+    );
+  end if;
+
+  if attempt_row.status not in ('en_progreso', 'enviado') then
+    raise exception 'ATTEMPT_NOT_ACTIVE' using errcode = '22023';
+  end if;
+
+  if attempt_row.status = 'en_progreso' and not exists (
+    select 1
+    from public.assessment_questions as question
+    where question.assessment_id = attempt_row.assessment_id
+  ) then
+    raise exception 'ASSESSMENT_HAS_NO_QUESTIONS' using errcode = '22023';
+  end if;
+
+  select count(*)::integer into question_total
+  from public.assessment_questions as question
+  where question.assessment_id = attempt_row.assessment_id;
+
+  if question_total = 0 then
+    raise exception 'ASSESSMENT_HAS_NO_QUESTIONS' using errcode = '22023';
+  end if;
+
+  select count(*)::integer into unassigned_question_total
+  from public.assessment_questions as question
+  left join public.assessment_sections as section
+    on section.id = question.section_id
+   and section.assessment_id = question.assessment_id
+  where question.assessment_id = attempt_row.assessment_id
+    and section.id is null;
+
+  if unassigned_question_total > 0 then
+    raise exception 'ASSESSMENT_QUESTION_SECTION_REQUIRED' using errcode = '22023';
+  end if;
+
+  with question_scores as (
+    select
+      section.id as section_id,
+      section.title,
+      section.weight,
+      count(*)::numeric as area_question_total,
+      count(*) filter (
+        where selected.selected_option_id is not null
+      )::integer as area_answered_total,
+      count(*) filter (
+        where selected.selected_option_id is not null
+          and answer_key.correct_option_id = selected.selected_option_id
+      )::integer as area_correct_total,
+      count(*) filter (
+        where answer_key.question_id is null
+      )::integer as area_invalid_key_total
+    from public.assessment_questions as question
+    join public.assessment_sections as section
+      on section.id = question.section_id
+     and section.assessment_id = question.assessment_id
+    left join lateral (
+      select answer.selected_option_id
+      from public.student_answers as answer
+      where answer.attempt_id = p_attempt_id
+        and answer.question_id = question.question_id
+      order by answer.answered_at desc, answer.id desc
+      limit 1
+    ) as selected on true
+    left join private.answer_keys as answer_key
+      on answer_key.question_id = question.question_id
+    where question.assessment_id = attempt_row.assessment_id
+    group by section.id, section.title, section.weight
+  ),
+  weighted_sections as (
+    select
+      area_question_total,
+      area_answered_total,
+      area_correct_total,
+      area_invalid_key_total,
+      coalesce(
+        weight,
+        case
+          when position('matematic' in translate(lower(btrim(title)), 'áéíóúüñ', 'aeiouun')) > 0
+            then 3::numeric / 13
+          when position('lectura' in translate(lower(btrim(title)), 'áéíóúüñ', 'aeiouun')) > 0
+            or position('critical reading' in lower(btrim(title))) > 0
+            then 3::numeric / 13
+          when position('ciencias naturales' in translate(lower(btrim(title)), 'áéíóúüñ', 'aeiouun')) > 0
+            or position('natural science' in lower(btrim(title))) > 0
+            then 3::numeric / 13
+          when position('social' in translate(lower(btrim(title)), 'áéíóúüñ', 'aeiouun')) > 0
+            or position('civic' in lower(btrim(title))) > 0
+            then 3::numeric / 13
+          when position('ingles' in translate(lower(btrim(title)), 'áéíóúüñ', 'aeiouun')) > 0
+            or position('english' in lower(btrim(title))) > 0
+            then 1::numeric / 13
+          else null
+        end
+      ) as scoring_weight
+    from question_scores
+  )
+  select
+    coalesce(sum(area_answered_total), 0)::integer,
+    coalesce(sum(area_correct_total), 0)::integer,
+    coalesce(sum(area_invalid_key_total), 0)::integer,
+    count(*) filter (where scoring_weight is null)::integer,
+    coalesce(sum(scoring_weight), 0),
+    coalesce(
+      sum(
+        (area_correct_total::numeric / nullif(area_question_total, 0))
+        * 100
+        * scoring_weight
+      ),
+      0
+    )
+  into
+    answered_total,
+    correct_total,
+    invalid_key_total,
+    missing_weight_total,
+    weight_total,
+    weighted_area_total
+  from weighted_sections;
+
+  if invalid_key_total > 0 then
+    raise exception 'ASSESSMENT_HAS_INVALID_ANSWER_KEYS' using errcode = '22023';
+  end if;
+
+  if missing_weight_total > 0 then
+    raise exception 'ASSESSMENT_SECTION_WEIGHT_REQUIRED' using errcode = '22023';
+  end if;
+
+  if weight_total <= 0 then
+    raise exception 'ASSESSMENT_HAS_NO_SCORABLE_AREAS' using errcode = '22023';
+  end if;
+
+  estimated_score := round((weighted_area_total / weight_total) * 5, 0);
+
+  update public.student_answers as answer
+  set is_correct = (answer_key.correct_option_id = answer.selected_option_id)
+  from private.answer_keys as answer_key
+  where answer.attempt_id = p_attempt_id
+    and answer.question_id = answer_key.question_id
+    and answer.selected_option_id is not null;
+
+  update public.assessment_attempts
+  set status = 'clasificado',
+      submitted_at = coalesce(submitted_at, now()),
+      score = estimated_score
+  where id = attempt_row.id;
+
+  insert into public.assessment_results (
+    attempt_id,
+    total_score,
+    correct_count,
+    incorrect_count,
+    unanswered_count
+  )
+  values (
+    attempt_row.id,
+    estimated_score,
+    correct_total,
+    answered_total - correct_total,
+    question_total - answered_total
+  )
+  on conflict (attempt_id) do nothing;
+
+  return jsonb_build_object(
+    'attempt_id', attempt_row.id,
+    'status', 'clasificado',
+    'result', jsonb_build_object(
+      'score', estimated_score,
+      'correct_count', correct_total,
+      'incorrect_count', answered_total - correct_total,
+      'unanswered_count', question_total - answered_total
+    )
+  );
 end;
 $$;
+    $definition$;
+  end if;
+
+  if to_regprocedure('public.save_assessment_answer(uuid,uuid,uuid)') is null then
+    execute $definition$
+create or replace function public.save_assessment_answer(
+  p_attempt_id uuid, p_question_id uuid, p_selected_option_id uuid
+)
+returns jsonb language plpgsql security definer set search_path = ''
+as $$
+declare
+  current_user_id uuid := auth.uid();
+  attempt_row public.assessment_attempts%rowtype;
+  answer_row public.student_answers%rowtype;
+begin
+  if current_user_id is null or not private.bertel_is_assessment_user(current_user_id) then
+    raise exception 'NOT_AUTHORIZED' using errcode = '42501';
+  end if;
+  select * into attempt_row from public.assessment_attempts
+  where id = p_attempt_id
+    and (student_id = current_user_id or private.is_bertel_admin())
+  for update;
+  if not found or attempt_row.status <> 'en_progreso' then
+    raise exception 'ATTEMPT_NOT_ACTIVE' using errcode = '22023';
+  end if;
+  if attempt_row.expires_at <= now() then
+    raise exception 'ATTEMPT_EXPIRED' using errcode = '22023';
+  end if;
+  if not exists (
+    select 1 from public.assessment_questions as aq
+    where aq.assessment_id = attempt_row.assessment_id and aq.question_id = p_question_id
+  ) then raise exception 'QUESTION_NOT_IN_ASSESSMENT' using errcode = '22023'; end if;
+  if p_selected_option_id is not null and not exists (
+    select 1 from public.question_options as question_option
+    where question_option.id = p_selected_option_id and question_option.question_id = p_question_id
+  ) then raise exception 'OPTION_NOT_IN_QUESTION' using errcode = '22023'; end if;
+  perform pg_advisory_xact_lock(hashtextextended(p_attempt_id::text || p_question_id::text, 0));
+  select * into answer_row from public.student_answers
+  where attempt_id = p_attempt_id and question_id = p_question_id
+  order by answered_at desc, id desc limit 1 for update;
+  if found then
+    update public.student_answers set selected_option_id = p_selected_option_id,
+      is_correct = null, answered_at = now() where id = answer_row.id;
+  else
+    insert into public.student_answers (attempt_id, question_id, selected_option_id, is_correct)
+    values (p_attempt_id, p_question_id, p_selected_option_id, null);
+  end if;
+  return jsonb_build_object('question_id', p_question_id,
+    'selected_option_id', p_selected_option_id, 'saved', true);
+end;
+$$;
+    $definition$;
+  end if;
+
+  if to_regprocedure('public.get_attempt_answers(uuid)') is null then
+    execute $definition$
+create or replace function public.get_attempt_answers(p_attempt_id uuid)
+returns table(question_id uuid, selected_option_id uuid, answered_at timestamptz)
+language plpgsql security definer set search_path = ''
+as $$
+begin
+  if auth.uid() is null or not private.bertel_is_assessment_user(auth.uid())
+    or not exists (
+      select 1 from public.assessment_attempts as attempt
+      where attempt.id = p_attempt_id
+        and (attempt.student_id = auth.uid() or private.is_bertel_admin())
+        and attempt.status = 'en_progreso'
+        and (attempt.student_id <> auth.uid() or private.bertel_assessment_allowed(auth.uid(), attempt.assessment_id))
+    ) then
+    raise exception 'NOT_AUTHORIZED' using errcode = '42501';
+  end if;
+
+  return query
+  select distinct on (answer.question_id)
+    answer.question_id, answer.selected_option_id, answer.answered_at
+  from public.student_answers as answer
+  where answer.attempt_id = p_attempt_id
+  order by answer.question_id, answer.answered_at desc, answer.id desc;
+end;
+$$;
+    $definition$;
+  end if;
+
+  if to_regprocedure('private.bertel_start_assessment_legacy(uuid)') is null then
+    if to_regprocedure('public.start_assessment(uuid)') is not null then
+      alter function public.start_assessment(uuid) rename to bertel_start_assessment_legacy;
+      alter function public.bertel_start_assessment_legacy(uuid) set schema private;
+    else
+      execute $definition$
+create or replace function private.bertel_start_assessment_legacy(p_assessment_id uuid)
+returns jsonb language plpgsql security definer set search_path = ''
+as $$
+declare
+  current_user_id uuid := auth.uid();
+  assessment_row public.assessments%rowtype;
+  attempt_row public.assessment_attempts%rowtype;
+begin
+  if current_user_id is null or not private.bertel_is_assessment_user(current_user_id) then
+    raise exception 'NOT_AUTHORIZED' using errcode = '42501';
+  end if;
+
+  select * into assessment_row
+  from public.assessments
+  where id = p_assessment_id and status = 'published'
+  for share;
+
+  if not found then
+    raise exception 'ASSESSMENT_NOT_AVAILABLE' using errcode = 'P0002';
+  end if;
+
+  if not exists (
+    select 1 from public.assessment_questions q where q.assessment_id = p_assessment_id
+  ) then raise exception 'ASSESSMENT_HAS_NO_QUESTIONS' using errcode = '22023'; end if;
+
+  perform pg_advisory_xact_lock(
+    hashtextextended(current_user_id::text || p_assessment_id::text, 0)
+  );
+
+  select * into attempt_row
+  from public.assessment_attempts
+  where assessment_id = p_assessment_id
+    and student_id = current_user_id
+    and status = 'en_progreso'
+    and (expires_at is null or expires_at > now())
+  order by started_at desc
+  limit 1
+  for update;
+
+  if found then
+    return jsonb_build_object(
+      'attempt_id', attempt_row.id,
+      'status', attempt_row.status,
+      'started_at', attempt_row.started_at,
+      'expires_at', attempt_row.expires_at
+    );
+  end if;
+
+  select * into attempt_row
+  from public.assessment_attempts
+  where assessment_id = p_assessment_id
+    and student_id = current_user_id
+    and status = 'en_progreso'
+    and expires_at <= now()
+  order by started_at desc
+  limit 1
+  for update;
+
+  if found then
+    perform public.submit_assessment_attempt(attempt_row.id);
+  end if;
+
+  insert into public.assessment_attempts (
+    assessment_id, student_id, expires_at
+  )
+  values (
+    assessment_row.id,
+    current_user_id,
+    now() + make_interval(mins => assessment_row.duration_minutes)
+  )
+  returning * into attempt_row;
+
+  return jsonb_build_object(
+    'attempt_id', attempt_row.id,
+    'status', attempt_row.status,
+    'started_at', attempt_row.started_at,
+    'expires_at', attempt_row.expires_at
+  );
+end;
+$$;
+      $definition$;
+    end if;
+  end if;
+end;
+$install$;
+
+revoke all on function public.submit_assessment_attempt(uuid),
+  public.save_assessment_answer(uuid, uuid, uuid), public.get_attempt_answers(uuid) from public, anon;
+grant execute on function public.submit_assessment_attempt(uuid),
+  public.save_assessment_answer(uuid, uuid, uuid), public.get_attempt_answers(uuid) to authenticated;
 
 revoke all on function private.bertel_start_assessment_legacy(uuid) from public, anon, authenticated;
 
