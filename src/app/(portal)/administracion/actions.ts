@@ -42,6 +42,9 @@ export async function createDraft(_previous: Feedback, data: FormData): Promise<
 }
 
 const publicationErrors: Record<string, string> = {
+  PUBLICATION_RECIPIENTS_REQUIRED: "Selecciona al menos un estudiante o profesor.",
+  INVALID_PUBLICATION_RECIPIENTS: "Alguna cuenta seleccionada ya no tiene el rol requerido o está inactiva.",
+  NOT_AUTHORIZED: "Tu cuenta no tiene permiso para publicar.",
   NOT_A_DRAFT: "La prueba ya no est\u00e1 en borrador.",
   ASSESSMENT_HAS_NO_QUESTIONS: "Agrega preguntas antes de publicar.",
   INVALID_QUESTIONS: "Hay preguntas sin enunciado o con menos de dos opciones.",
@@ -53,7 +56,16 @@ export async function publishAssessment(_previous: Feedback, data: FormData): Pr
   const { supabase } = await requireRole(["admin"]);
   const id = field(data, "id");
   if (!uuid.test(id)) return { ok: false, message: "La prueba solicitada no es v\u00e1lida." };
-  const { error } = await supabase.rpc("publish_validated_assessment", { p_assessment: id });
+  const students = data.getAll("students");
+  const teachers = data.getAll("teachers");
+  if (![...students, ...teachers].every((value) => typeof value === "string" && uuid.test(value))) {
+    return { ok: false, message: "La selección de usuarios no es válida." };
+  }
+  const { error } = await supabase.rpc("bertel_publish_for_users", {
+    p_assessment: id,
+    p_students: Array.from(new Set(students)),
+    p_teachers: Array.from(new Set(teachers)),
+  });
   if (error) return {
     ok: false,
     message: error.code === "PGRST202"
@@ -64,5 +76,5 @@ export async function publishAssessment(_previous: Feedback, data: FormData): Pr
   revalidatePath("/administracion");
   revalidatePath("/panel");
   revalidatePath("/simulacro");
-  return { ok: true, message: "Prueba publicada." };
+  return { ok: true, message: "Prueba publicada para los usuarios seleccionados." };
 }
