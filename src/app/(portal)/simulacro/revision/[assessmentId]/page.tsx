@@ -4,6 +4,7 @@ import { QuestionImages } from "@/components/portal/QuestionImages";
 import { optionLetter } from "@/components/portal/QuestionAnswerSummary";
 import { ReviewOptions } from "@/components/portal/ReviewOptions";
 import { getControlledAssessmentReview } from "@/services/controlled-assessment-review";
+import { requireRole } from "@/services/auth";
 import { isControlledAssessment } from "@/services/controlled-assessments";
 import { getAssessmentForReview } from "@/services/assessments";
 
@@ -19,7 +20,8 @@ export default async function AssessmentReviewPage({
   const { assessmentId } = await params;
   const { pagina, vista } = await searchParams;
   const requested = Number(pagina ?? 1);
-  const detail = isControlledAssessment(assessmentId)
+  const { roles } = await requireRole(["admin", "profesor"]);
+  const detail = roles.includes("admin") && isControlledAssessment(assessmentId)
     ? await getControlledAssessmentReview(assessmentId, Number.isSafeInteger(requested) ? requested : 1)
     : null;
   const assessment = detail ?? await getAssessmentForReview(assessmentId);

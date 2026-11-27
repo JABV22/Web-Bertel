@@ -1,4 +1,3 @@
-import { isControlledAssessment } from "@/services/controlled-assessments";
 import { requireRole } from "@/services/auth";
 
 async function getEnabledAssessments(supabase: Awaited<ReturnType<typeof requireRole>>["supabase"]) {
@@ -39,7 +38,6 @@ export async function getAvailableAssessments() {
   const admin = roles.includes("admin");
   const student = roles.includes("estudiante");
   return (data ?? [])
-    .filter((assessment) => admin || !isControlledAssessment(assessment.id))
     .filter((assessment) => admin || reviewPermissions?.has(assessment.id) ||
       (student && (enabled === null || enabled.has(assessment.id))))
     .map((assessment) => ({
@@ -84,8 +82,7 @@ export async function getPanelAssessments() {
     throw new Error("No fue posible cargar las evaluaciones del panel.");
   }
 
-  const visible = (assessments ?? []).filter((item) => roles.includes("admin") || !isControlledAssessment(item.id));
-  const assessmentIds = visible.map((assessment) => assessment.id);
+  const assessmentIds = (assessments ?? []).map((assessment) => assessment.id);
 
   const { data: attempts, error: attemptsError } =
     assessmentIds.length > 0
@@ -113,7 +110,7 @@ export async function getPanelAssessments() {
     }
   }
 
-  return visible.map((assessment) => {
+  return (assessments ?? []).map((assessment) => {
     const attempt = latestAttemptByAssessment.get(assessment.id) ?? null;
 
     return {
@@ -178,14 +175,18 @@ async function loadQuestionImages(
   return Promise.all(assets.map(async (asset) => {
     const url = URL.canParse(asset.asset_url) ? new URL(asset.asset_url) : null;
     if (!url || url.protocol !== "https:") return { ...asset, asset_url: "" };
-    if (!url.pathname.startsWith(prefix)) return asset;
+    const publicPrefix = "/storage/v1/object/public/SIMULACROS/";
+    const relativePath = url.pathname.startsWith(publicPrefix)
+      ? url.pathname.slice("/storage/v1/object/public/".length)
+      : url.pathname.startsWith(prefix) ? url.pathname.slice(prefix.length) : null;
+    if (!relativePath) return asset;
     if (!storageOrigin || url.origin !== new URL(storageOrigin).origin) {
       return { ...asset, asset_url: "" };
     }
 
-    const [bucket, ...segments] = url.pathname.slice(prefix.length).split("/");
+    const [bucket, ...segments] = relativePath.split("/");
     const path = segments.map(decodeURIComponent).join("/");
-    const { data, error } = await supabase.storage.from(decodeURIComponent(bucket)).createSignedUrl(path, 3600);
+    const { data, error } = await supabase.storage.from(decodeURIComponent(bucket)).createSignedUrl(path, 300);
     if (data?.signedUrl) return { ...asset, asset_url: data.signedUrl };
 
     if (error) console.warn("question image:", error.message);
@@ -204,7 +205,7 @@ export async function getAssessmentForReview(assessmentId: string) {
   const { supabase, roles } = await requireRole(["profesor", "admin"]);
   if (!/^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(assessmentId)) return null;
 
-  if (!roles.includes("admin") && (isControlledAssessment(assessmentId) || !(await getTeacherPreviewPermissions(supabase)).has(assessmentId))) return null;
+  if (!roles.includes("admin") && !(await getTeacherPreviewPermissions(supabase)).has(assessmentId)) return null;
 
   const { data, error } = await supabase
     .from("assessments")

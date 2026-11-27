@@ -1,4 +1,4 @@
-import { DraftForm, PublishForm } from "./AssessmentAdminForms";
+import { DraftForm } from "./AssessmentAdminForms";
 import Link from "next/link";
 
 type AdminAssessment = {
@@ -81,7 +81,7 @@ export function AdministrationView({
                   <Link prefetch={false} className="btn btn--sm btn--linea mb-2" href={`/simulacro/revision/${assessment.id}`}>
                     Revisar simulacro
                   </Link>
-                  {assessment.status === "draft" && <PublishForm assessmentId={assessment.id} />}
+                  {assessment.status === "draft" && <Link className="btn btn--sm btn--linea" href={`/administracion/publicar/${assessment.id}`}>Configurar publicación</Link>}
                 </td>
               </tr>
             ))}
