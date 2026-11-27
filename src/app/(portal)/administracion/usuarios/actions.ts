@@ -102,6 +102,16 @@ export async function updateUserAccess(_previous: Feedback, data: FormData): Pro
     mutation = supabase.rpc("bertel_admin_set_role", { p_user: user, p_role: role });
   } else if (uuid.test(resource) && ["course_enable", "course_enroll", "course_disable", "course_assign_teacher", "course_remove_teacher"].includes(action)) {
     mutation = supabase.rpc("bertel_admin_set_course", { p_user: user, p_course: resource, p_action: action.slice(7) });
+  } else if (uuid.test(resource) && ["preview_enable", "preview_disable"].includes(action)) {
+    const { error } = await supabase.rpc("bertel_admin_set_teacher_preview", {
+      p_teacher: user, p_assessment: resource, p_enabled: action === "preview_enable",
+    });
+    if (error?.code === "PGRST202") return { ok: false, message: "Aplica la migración 009 en Supabase." };
+    if (error) return failed(error.message, error.code);
+    revalidatePath(managementPath);
+    revalidatePath("/simulacro");
+    revalidatePath(`/simulacro/revision/${resource}`);
+    return { ok: true, message: "Permiso de revisión actualizado." };
   } else if (uuid.test(resource) && ["assessment_enable", "assessment_disable"].includes(action)) {
     mutation = supabase.rpc("bertel_admin_set_assessment", {
       p_user: user, p_assessment: resource, p_enabled: action === "assessment_enable",

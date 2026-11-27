@@ -44,15 +44,17 @@ export function UserRegistrationForm() {
   );
 }
 
-export function UserManagementForms({ userId, roles, canChangeRole, access }: {
+export function UserManagementForms({ userId, roles, canChangeRole, access, reviewable }: {
   userId: string;
   roles: string[];
   canChangeRole: boolean;
   access: UserAccess;
+  reviewable: string[] | null;
 }) {
   const [roleState, roleAction, rolePending] = useActionState(updateUserAccess, initial);
   const [courseState, courseAction, coursePending] = useActionState(updateUserAccess, initial);
   const [testState, testAction, testPending] = useActionState(updateUserAccess, initial);
+  const [previewState, previewAction, previewPending] = useActionState(updateUserAccess, initial);
   const student = roles.includes("estudiante");
   const teacher = roles.includes("profesor");
 
@@ -98,6 +100,35 @@ export function UserManagementForms({ userId, roles, canChangeRole, access }: {
             </>}
           </div>
           <Feedback state={courseState} />
+        </form>
+      )}
+      {teacher && (
+        <form className="rounded-lg border border-borde p-4" action={previewAction}>
+          <input type="hidden" name="user" value={userId} />
+          <h3 className="mb-2 text-base font-semibold">Revisión previa de simulacros</h3>
+          <p className="mb-3 text-sm text-gris-texto">Permite al profesor consultar las preguntas y las claves antes de asignar el simulacro.</p>
+          {reviewable === null ? (
+            <p role="status" className="text-sm text-gris-texto">No se pudieron cargar los permisos de revisión previa.</p>
+          ) : (
+            <>
+              <div className="campo">
+                <label htmlFor="preview-assessment">Simulacro para revisión previa</label>
+                <select className="entrada" id="preview-assessment" name="resource" defaultValue="" required>
+                  <option value="">Selecciona un simulacro</option>
+                  {access.assessments.map((test) => (
+                    <option key={test.id} value={test.id}>
+                      {test.title} · {reviewable.includes(test.id) ? "permitido" : "sin permiso"}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button className="btn btn--sm" name="action" value="preview_enable" disabled={previewPending}>Permitir revisión</button>
+                <button className="btn btn--sm btn--linea" name="action" value="preview_disable" disabled={previewPending}>Retirar permiso de revisión</button>
+              </div>
+              <Feedback state={previewState} />
+            </>
+          )}
         </form>
       )}
       <form className="rounded-lg border border-borde p-4" action={testAction}>
